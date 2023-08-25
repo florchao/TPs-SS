@@ -27,23 +27,14 @@ public class RandomParticleGenerator {
         }
     }
 
-    private static double calculateTotalVelocity(){
-        double totalVx=0;
-        double totalVy=0;
-        for (Particle p : particles){
-            totalVx += (p.getV()*cos(p.getTheta()));
-            totalVy += (p.getV()*sin(p.getTheta()));
-        }
-        return Math.sqrt(Math.pow(totalVx, 2) + Math.pow(totalVy,2));
+    public static Grid initGrid() {
+        return new Grid(L, radius);
+
     }
-
-    public static Grid populateGrid (){
-        Grid populatedGrid = new Grid(L, radius);
-
+    public static void populateGrid (Grid grid){
         for (Particle p : particles){
-            populatedGrid.addParticle(p);
+            grid.addParticle(p);
         }
-        return populatedGrid;
     }
 
     public static double distance(Particle p1, Particle p2){
@@ -55,7 +46,7 @@ public class RandomParticleGenerator {
         return Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
     }
 
-    public static HashMap<Particle, List<Integer>> checkNeighbours(int M, int L, double rc, Grid grid, boolean roundNeighbours) {
+    public static HashMap<Particle, List<Integer>> checkNeighbours(int M, double rc, Grid grid) {
         HashMap<Particle, List<Integer>> neighbours = new HashMap<>();
         for (int i=0; i< M; i++){
             for (int j=0; j< M ; j++){
@@ -92,6 +83,63 @@ public class RandomParticleGenerator {
         return neighbours;
     }
 
+    public static void updateTheta(HashMap<Particle, List<Integer>> neighboursMap){
+        for (Particle p: particles){
+            double newX = p.getX() + p.getV() * Math.cos(p.getTheta());
+            double newY = p.getY() + p.getV() * Math.sin(p.getTheta());
+
+            if (newX > L)
+                newX = newX - L;
+            else if (newX < 0)
+                newX = newX + L;
+            if (newY > L)
+                newY = newY - L;
+            else if (newY < 0)
+                newY = newY + L;
+
+            p.setX(newX);
+            p.setY(newY);
+
+            double noise = ((Math.random() * 2*N) - N)/2;
+            double sumSin = Math.sin(p.getTheta());
+            double sumCos = Math.cos(p.getTheta());
+            for (Integer id : neighboursMap.get(p)){
+                sumSin += Math.sin(particles.get(id - 1).getTheta());
+                sumCos += Math.cos(particles.get(id - 1).getTheta());
+            }
+            double newTheta = Math.atan2(sumSin,sumCos);
+
+            p.setTheta((newTheta + noise) % (2*Math.PI));
+        }
+    }
+
+    public static void fillFiles(FileWriter staticFile, FileWriter dynamicFile) throws IOException{
+        staticFile.write("   " + N + "\n   " + L);
+        dynamicFile.write("   " + 0);
+
+        double x, y, theta;
+        for (int i = 0; i < N; i++) {
+            x = L * Math.random();
+            y = L * Math.random();
+            theta = 2 * Math.PI * Math.random();
+            staticFile.write("\n   " + radius);
+            dynamicFile.write(String.format("\n   %.7e   %.7e   %f   %.7e", x,y,v,theta));
+        }
+    }
+
+    public static void writeFiles(FileWriter output, FileWriter va_output, int iterations) throws IOException{
+        output.write(String.format("%d\n", iterations));
+
+        double sin= 0,cos=0;
+        for(Particle p: particles){
+            output.write(String.format("%d\t%.7e\t%.7e\t%f\t%.7e\n", p.getId(),p.getX(), p.getY(), p.getV(), p.getTheta()));
+            sin+=(Math.sin(p.getTheta()));
+            cos+=(Math.cos(p.getTheta()));
+        }
+
+        double averageV = Math.sqrt(Math.pow(sin, 2) + Math.pow(cos,2)) / (N*v);
+        va_output.write(String.format("%d\t%g\t\n",iterations,averageV));
+    }
 
     public static void main(String[] args) throws IOException {
         if (args.length != 3) {
@@ -107,33 +155,26 @@ public class RandomParticleGenerator {
 
         FileWriter staticFile = new FileWriter("./output/static.txt");
         FileWriter dynamicFile = new FileWriter ("./output/dynamic.txt");
-
-        //todo VER QUE NECESITAMOS PARA EL DYNAMIC Y EL STATIC
-        generateParticles();
-        double averageV = calculateTotalVelocity() / (N*v);
-        Grid grid = populateGrid();
-
-        FileWriter output = new FileWriter(new File("../output/", "dynamicOutput.txt"));
-        FileWriter va_output = new FileWriter(new File("../output/", "va_Output.txt"));
-
-        for (int i = 0; i < iterations; i++) {
-            output.write(String.format("%d\n",i));
-            for(Particle p : particles){
-                output.write(String.format("%d %f %f %f %f %f %f %f\n",
-                        p.getId(),
-                        p.getX(),
-                        p.getY(),
-                        0*1.0,
-                        p.getX()*cos(p.getTheta()),
-                        p.getY()*sin(p.getTheta()),
-                        p.getTheta(),
-                        radius));
-            }
-        }
-
+        fillFiles(staticFile, dynamicFile);
         staticFile.close();
         dynamicFile.close();
 
+        generateParticles();
+        Grid grid = initGrid();
+
+        FileWriter output = new FileWriter(new File("./output/", "dynamicOutput.txt"));
+        FileWriter va_output = new FileWriter(new File("./output/", "va_Output.txt"));
+        va_output.write("Step\nVa\n");
+
+        for (int i=0; i < iterations; i++) {
+            writeFiles(output, va_output, i);
+            populateGrid(grid);
+            HashMap<Particle, List<Integer>> neighbours = checkNeighbours(grid.getSize(), radius, grid);
+            updateTheta(neighbours);
+        }
+
+        output.close();
+        va_output.close();
     }
 
 }

@@ -13,7 +13,7 @@ public class Grid {
         this.rc = rc;
         this.M = (int) Math.floor(L/rc);
         if (this.M == L/rc) {
-            this.M =-1;
+            this.M -=1;
         } else if (this.M == 0) {
             this.M = 1;
         }
