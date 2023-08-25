@@ -39,10 +39,6 @@ public class Particle {
         return v;
     }
 
-    public void setV(double v) {
-        this.v = v;
-    }
-
     public int getId() {
         return id;
     }

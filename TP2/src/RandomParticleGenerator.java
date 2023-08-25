@@ -6,13 +6,11 @@ import java.util.*;
 import java.util.List;
 import java.lang.Math;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-
 public class RandomParticleGenerator {
 
     private static List<Particle> particles = new ArrayList<>();
     private static int N;
+    private static int noise;
     private static double L;
     private static double v;
     private static double radius;
@@ -100,7 +98,7 @@ public class RandomParticleGenerator {
             p.setX(newX);
             p.setY(newY);
 
-            double noise = ((Math.random() * 2*N) - N)/2;
+            double finalNoise = ((Math.random() * 2*noise) - noise)/2;
             double sumSin = Math.sin(p.getTheta());
             double sumCos = Math.cos(p.getTheta());
             for (Integer id : neighboursMap.get(p)){
@@ -109,7 +107,7 @@ public class RandomParticleGenerator {
             }
             double newTheta = Math.atan2(sumSin,sumCos);
 
-            p.setTheta((newTheta + noise) % (2*Math.PI));
+            p.setTheta((newTheta + finalNoise) % (2*Math.PI));
         }
     }
 
@@ -142,15 +140,16 @@ public class RandomParticleGenerator {
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length != 3) {
-            throw new IllegalArgumentException("Three parameters are expected");
+        if (args.length != 4) {
+            throw new IllegalArgumentException("Four parameters are expected");
         }
 
-        int iterations = 10;
+        int iterations = 50;
 
         N = Integer.parseInt(args[0]);
         L = Double.parseDouble(args[1]);
         v = Double.parseDouble(args[2]);
+        noise = Integer.parseInt(args[3]);
         radius = 1;
 
         FileWriter staticFile = new FileWriter("./output/static.txt");

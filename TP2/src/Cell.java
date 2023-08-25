@@ -12,15 +12,8 @@ public class Cell {
         particleList.add(particle);
     }
 
-    public void addAllParticle(List<Particle> particles) {
-        particleList.addAll(particles);
-    }
-
     public List<Particle> getParticleList() {
         return particleList;
     }
 
-    public void setParticleList(List<Particle> particleList) {
-        this.particleList = particleList;
-    }
 }

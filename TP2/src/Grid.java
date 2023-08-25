@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Grid {
@@ -29,18 +27,6 @@ public class Grid {
         return M;
     }
 
-    public void setSize(int size) {
-        this.M = size;
-    }
-
-    public Cell[][] getCells() {
-        return cells;
-    }
-
-    public void setCells(Cell[][] cells) {
-        this.cells = cells;
-    }
-
     public void addParticle(Particle particle){
         int row = ((int) (particle.getX() * M / ((float) L))) % M;
         int col = ((int) (particle.getY() * M / ((float) L))) % M;
@@ -52,16 +38,6 @@ public class Grid {
             return null;
         }
         return cells[row][column].getParticleList();
-    }
-
-    public List<Particle> getAllParticles(){
-        ArrayList<Particle> allParticles = new ArrayList<>(Collections.emptyList());
-        for (int i=0; i < M ; i++) {
-            for (int j=0 ; j< M ; j++) {
-                allParticles.addAll(cells[i][j].getParticleList());
-            }
-        }
-        return allParticles;
     }
 
 }
