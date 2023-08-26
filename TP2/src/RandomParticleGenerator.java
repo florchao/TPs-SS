@@ -10,7 +10,7 @@ public class RandomParticleGenerator {
 
     private static List<Particle> particles = new ArrayList<>();
     private static int N;
-    private static int noise;
+    private static double noise;
     private static double L;
     private static double v;
     private static double radius;
@@ -149,7 +149,7 @@ public class RandomParticleGenerator {
         N = Integer.parseInt(args[0]);
         L = Double.parseDouble(args[1]);
         v = Double.parseDouble(args[2]);
-        noise = Integer.parseInt(args[3]);
+        noise = Double.parseDouble(args[3]);
         radius = 1;
 
         FileWriter staticFile = new FileWriter("./output/static.txt");
@@ -161,8 +161,8 @@ public class RandomParticleGenerator {
         generateParticles();
         Grid grid = initGrid();
 
-        FileWriter output = new FileWriter(new File("./output/", "dynamicOutput.txt"));
-        FileWriter va_output = new FileWriter(new File("./output/", "va_Output.txt"));
+        FileWriter output = new FileWriter(new File("./output/", "dynamicOutput_order5.txt"));
+        FileWriter va_output = new FileWriter(new File("./output/", "va_Output_order5.txt"));
         va_output.write("Step\nVa\n");
 
         for (int i=0; i < iterations; i++) {
