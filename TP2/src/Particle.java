@@ -19,12 +19,8 @@ public class Particle {
         return Objects.hash(id);
     }
 
-    public Particle(int id, double x, double y, double v, double theta) {
+    public Particle(int id) {
         this.id = id;
-        this.x = x;
-        this.y = y;
-        this.v = v;
-        this.theta = theta;
     }
 
     public double getTheta() {
@@ -59,4 +55,7 @@ public class Particle {
         this.y = y;
     }
 
+    public void setV(double v) {
+        this.v = v;
+    }
 }

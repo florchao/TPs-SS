@@ -12,8 +12,7 @@ public class Cell {
         particleList.add(particle);
     }
 
-    public List<Particle> getParticleList() {
+    public List<Particle> getParticles() {
         return particleList;
     }
-
 }
