@@ -45,5 +45,5 @@ def read_input_file(filename):
     return len(variations), variations
 
 if __name__ == '__main__':
-    var, iterations = read_input_file(sys.argv[1])
-    draw(iterations, var)
+    var, iterations = read_input_file("../output/va_Output_L5.txt")
+    draw(var, iterations)
