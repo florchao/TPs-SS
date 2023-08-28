@@ -71,7 +71,7 @@ def draw(iterations,dataOrder, dataOrder2, dataOrder3, dataOrder4, dataOrder5, d
 def read_input_file(filename):
     lines = []
     with open(filename) as order:
-        lines = order.readlines()[2:]
+        lines = order.readlines()[1:]
     variations = []
     for line in lines:
         aux = line.split('\t')[1:2]
@@ -80,11 +80,11 @@ def read_input_file(filename):
     return len(variations), variations
 
 if __name__ == '__main__':
-    var1, iterations = read_input_file("../output/dynamicOutput_L5.txt")
-    var2, iterations2 = read_input_file("../output/dynamicOutput_L7.txt")
-    var3, iterations3 = read_input_file("../output/dynamicOutput_L10.txt")
-    var4, iterations4 = read_input_file("../output/dynamicOutput_L15.txt")
-    var5, iterations5 = read_input_file("../output/dynamicOutput_L20.txt")
-    var6, iterations6 = read_input_file("../output/dynamicOutput_L25.txt")
-    draw(iterations, var1, var2, var3, var4, var5, var6)
+    var1, iterations = read_input_file("../output/va_Output_L5.txt")
+    var2, iterations2 = read_input_file("../output/va_Output_L7.txt")
+    var3, iterations3 = read_input_file("../output/va_Output_L10.txt")
+    var4, iterations4 = read_input_file("../output/va_Output_L15.txt")
+    var5, iterations5 = read_input_file("../output/va_Output_L20.txt")
+    var6, iterations6 = read_input_file("../output/va_Output_L25.txt")
+    draw(var1,iterations, iterations2, iterations3, iterations4, iterations5, iterations6)
 
