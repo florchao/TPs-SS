@@ -80,10 +80,10 @@ def read_input_file(filename):
     return len(variations), variations
 
 if __name__ == '__main__':
-    var1, iterations = read_input_file("../output/va_Output_order0.1.txt")
+    var1, iterations = read_input_file("../output/va_Output_order01.txt")
     var2, iterations2 = read_input_file("../output/va_Output_order1.txt")
     var3, iterations3 = read_input_file("../output/va_Output_order2.txt")
     var4, iterations4 = read_input_file("../output/va_Output_order3.txt")
     var5, iterations5 = read_input_file("../output/va_Output_order4.txt")
     var6, iterations6 = read_input_file("../output/va_Output_order5.txt")
-    draw(iterations, var1, var2, var3, var4, var5, var6)
+    draw(var1,iterations, iterations2, iterations3, iterations4, iterations5, iterations6)
