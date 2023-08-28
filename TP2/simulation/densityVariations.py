@@ -1,4 +1,3 @@
-import sys
 import plotly.graph_objects as graph
 
 
@@ -81,11 +80,11 @@ def read_input_file(filename):
     return len(variations), variations
 
 if __name__ == '__main__':
-    var1, iterations = read_input_file(sys.argv[1])
-    var2, iterations2 = read_input_file(sys.argv[2])
-    var3, iterations3 = read_input_file(sys.argv[3])
-    var4, iterations4 = read_input_file(sys.argv[4])
-    var5, iterations5 = read_input_file(sys.argv[5])
-    var6, iterations6 = read_input_file(sys.argv[6])
+    var1, iterations = read_input_file("../output/dynamicOutput_L5.txt")
+    var2, iterations2 = read_input_file("../output/dynamicOutput_L7.txt")
+    var3, iterations3 = read_input_file("../output/dynamicOutput_L10.txt")
+    var4, iterations4 = read_input_file("../output/dynamicOutput_L15.txt")
+    var5, iterations5 = read_input_file("../output/dynamicOutput_L20.txt")
+    var6, iterations6 = read_input_file("../output/dynamicOutput_L25.txt")
     draw(iterations, var1, var2, var3, var4, var5, var6)
 

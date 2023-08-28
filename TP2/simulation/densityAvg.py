@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plot
 import numpy
-import sys
 from statistics import mean
 
 def draw(orders1, orders2, orders3, orders4, orders5, orders6):
+
     N = 500
 
     x = [N/(5*5), N/(7*7), N/(10*10), N/(15*15), N/(20*20), N/(25*25)]
@@ -15,7 +15,7 @@ def draw(orders1, orders2, orders3, orders4, orders5, orders6):
 
     ax.errorbar(x, y, yerr, fmt='o', linewidth=3, capsize=12, color="pink", ecolor='purple', elinewidth=3)
 
-    ax.set(xlim=(0, 14), xticks=numpy.arange(0, 14, 2),
+    ax.set(xlim=(0, 22), xticks=numpy.arange(0, 22, 2),
            ylim=(0, 1.1), yticks=numpy.arange(0, 1.1, 0.2))
 
     plot.xlabel('Densidad')
@@ -38,11 +38,11 @@ def read_input_file(filename):
     return [average, deviation]
 
 if __name__ == '__main__':
-    orders1 = read_input_file(sys.argv[1])
-    orders2 = read_input_file(sys.argv[2])
-    orders3 = read_input_file(sys.argv[3])
-    orders4 = read_input_file(sys.argv[4])
-    orders5 = read_input_file(sys.argv[3])
-    orders6 = read_input_file(sys.argv[4])
+    orders1 = read_input_file("../output/va_Output_L5.txt")
+    orders2 = read_input_file("../output/va_Output_L7.txt")
+    orders3 = read_input_file("../output/va_Output_L10.txt")
+    orders4 = read_input_file("../output/va_Output_L15.txt")
+    orders5 = read_input_file("../output/va_Output_L20.txt")
+    orders6 = read_input_file("../output/va_Output_L25.txt")
 
     draw(orders1, orders2, orders3, orders4, orders5, orders6)
