@@ -5,7 +5,7 @@ import java.util.*;
 
 import static java.lang.System.exit;
 
-public class Main {
+public class OffLatice {
     private static double radius;
     private static double N;
     private static double L;
