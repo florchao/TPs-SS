@@ -36,8 +36,9 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        File inputFile = new File(args[0]);
-        FileWriter staticWriter = new FileWriter("./output/static.txt");
+        File inputFile = new File("./files/input.txt");
+        FileWriter inputWriter = new FileWriter(inputFile.getPath());
+        L = Integer.parseInt(args[0]);
 
         generateParticles(staticWriter);
 
