@@ -19,7 +19,7 @@ public class Main {
         double radius = 0.0015;
         double v = 0.01;
         double length = 0.09;
-        inputFile.write("   " + N);
+        inputFile.write("     " + N);
 
         double rx, ry, theta, vx, vy;
         for (int i = 0; i < N; i++) {
@@ -37,8 +37,8 @@ public class Main {
 
         File inputFile = new File("./files/input.txt");
         FileWriter inputWriter = new FileWriter(inputFile.getPath());
-        L = Integer.parseInt(args[0]);
-
+        L = Double.parseDouble(args[0]);
+        N = Integer.parseInt(args[1]);
         generateParticles(inputWriter);
 
         List<String> data;
@@ -47,11 +47,11 @@ public class Main {
         } catch (IOException e) {
             throw new RuntimeException("Error trying to read lines");
         }
-        N = Integer.parseInt(data.get(0).split("    ")[0]);
+        N = Integer.parseInt(data.get(0).split("     ")[1]);
 
         for (int i = 1; i < data.size(); i++){
             String[] line = data.get(i).split("    ");
-            particles.add(new Particle(i-1, Double.parseDouble(line[1]), Double.parseDouble(line[2]), Double.parseDouble(line[3]), Double.parseDouble(line[4]), Double.parseDouble(line[5]), Double.parseDouble(line[6])));
+            particles.add(new Particle(i-1, Double.parseDouble(line[0]), Double.parseDouble(line[1]), Double.parseDouble(line[2]), Double.parseDouble(line[3]), Double.parseDouble(line[4]), Double.parseDouble(line[5])));
         }
 
         if (particles.size() != N) {
