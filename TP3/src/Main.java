@@ -28,7 +28,6 @@ public class Main {
             theta = 2 * Math.PI * Math.random();
             vx = v * Math.cos(theta);
             vy = v * Math.sin(theta);
-
             inputFile.write("\n   " + rx + "    " + ry + "    " + vx + "    " + vy + "    " + weight + "    " + radius);
         }
         inputFile.close();
@@ -40,7 +39,7 @@ public class Main {
         FileWriter inputWriter = new FileWriter(inputFile.getPath());
         L = Integer.parseInt(args[0]);
 
-        generateParticles(staticWriter);
+        generateParticles(inputWriter);
 
         List<String> data;
         try {
