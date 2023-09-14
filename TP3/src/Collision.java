@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Collision {
 
     private Particle p1;
@@ -86,6 +88,22 @@ public class Collision {
         return isVerticalWall;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Collision collision = (Collision) o;
+        if (p1.equals(collision.getP1()) && p2.equals(collision.getP2())) {
+            if (p2 == null) {
+                return (isHorizontalWall && collision.isHorizontalWall()) || (isVerticalWall && collision.isVerticalWall());
+            }
+            return true;
+        } else return p1.equals(collision.getP2()) && p2.equals(collision.getP1());
+    }
 
+    @Override
+    public int hashCode() {
+        return p2 == null ? Objects.hash(p1.getId()) : Objects.hash(p1.getId(), p2.getId());
+    }
 
 }

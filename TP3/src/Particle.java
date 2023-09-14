@@ -101,7 +101,7 @@ public class Particle {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Particle particle = (Particle) o;
-        return id == particle.id;
+        return id == particle.getId();
     }
 
     @Override

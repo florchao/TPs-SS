@@ -9,7 +9,7 @@ public class Main {
 
     public static int N;
     public static double L;
-    private static Set<Particle> particles = new HashSet<>();
+    private static final Set<Particle> particles = new HashSet<>();
 
     private static final Double MAX_TIME = 60.0*30;
 
@@ -23,7 +23,7 @@ public class Main {
         double rx, ry, theta, vx, vy;
         for (int i = 0; i < N; i++) {
             //all negative because they are in the first container which is negative x
-            rx = -1 * length * Math.random();
+            rx = length * Math.random();
             ry = length * Math.random();
             theta = 2 * Math.PI * Math.random();
             vx = v * Math.cos(theta);
@@ -68,7 +68,7 @@ public class Main {
         while (timeToCollide < MAX_TIME){
             container.moveParticles(timeToCollide);
             //Collision nextCollision = container.getNextCollision();
-            container.executeCollisions(timeToCollide-lastTime);
+            container.executeCollisions(timeToCollide);
             lastTime = timeToCollide;
             timeToCollide = container.getFirstCollisionTime();
         }
