@@ -3,16 +3,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
 
     public static int N;
     public static double L;
     private static Set<Particle> particles = new HashSet<>();
+
+    private static final Double MAX_TIME = 60.0*30;
 
     private static void generateParticles(FileWriter inputFile) throws IOException {
         double weight = 1.00;
@@ -23,7 +22,8 @@ public class Main {
 
         double rx, ry, theta, vx, vy;
         for (int i = 0; i < N; i++) {
-            rx = length * Math.random();
+            //all negative because they are in the first container which is negative x
+            rx = -1 * length * Math.random();
             ry = length * Math.random();
             theta = 2 * Math.PI * Math.random();
             vx = v * Math.cos(theta);
@@ -57,6 +57,23 @@ public class Main {
         if (particles.size() != N) {
             System.out.println("Error reading file data");
         }
+
+        Container container = new Container(0.9, particles);
+
+        Double timeToCollide = container.getFirstCollisionTime();
+        System.out.println("Time to collide: " + timeToCollide);
+
+        Double lastTime = 0.0;
+
+        while (timeToCollide < MAX_TIME){
+            container.moveParticles(timeToCollide);
+            //Collision nextCollision = container.getNextCollision();
+            container.executeCollisions(timeToCollide-lastTime);
+            lastTime = timeToCollide;
+            timeToCollide = container.getFirstCollisionTime();
+        }
+
+
 
     }
 
