@@ -115,7 +115,13 @@ public class Collision {
 
     @Override
     public int hashCode() {
-        return p2 == null ? Objects.hash(p1.getId()) : Objects.hash(p1.getId(), p2.getId());
+        if (p2 == null) {
+            return Objects.hash(p1.getId());
+        }
+        if (p1.getId() < p2.getId()) {
+            return Objects.hash(p1.getId(), p2.getId());
+        }
+        return Objects.hash(p2.getId(), p1.getId());
     }
 
 }
