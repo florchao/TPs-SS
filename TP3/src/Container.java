@@ -23,35 +23,38 @@ public class Container {
         this.particlesB = 0;
 
         for (Particle p1 : particles)
-            setCollisionTimes(p1);
+            setCollisionTimes(p1, 0.0);
 
     }
 
-    private void setCollisionTimes(Particle p1) {
+    private void setCollisionTimes(Particle p1, double currentTime) {
         for (Particle p2 : particles) {
             if (!p1.equals(p2)) {
                 Collision particleCollision = new Collision(p1, p2);
                 Double time = particleCollision.timeCollisionAgainstParticle();
-                if (time != Double.POSITIVE_INFINITY) {
-                    particleCollisionTimes.putIfAbsent(time, particleCollision);
+                if (time != Double.POSITIVE_INFINITY && time > 0) {
+                    particleCollisionTimes.putIfAbsent(currentTime + time, particleCollision);
                 }
             }
         }
+        /*
         Collision verticalCollision = new Collision(p1, false, true);
         Double verticalTime = verticalCollision.timeCollisionAgainstVerticalWall(width, L);
         if (verticalTime != Double.POSITIVE_INFINITY) {
-            particleCollisionTimes.putIfAbsent(verticalTime, verticalCollision);
+            particleCollisionTimes.putIfAbsent(currentTime + verticalTime, verticalCollision);
         }
         Collision horizontalCollision = new Collision(p1, true, false);
         Double horizontalTime = horizontalCollision.timeCollisionAgainstHorizontalWall(width, L);
         if (horizontalTime != Double.POSITIVE_INFINITY) {
-            particleCollisionTimes.putIfAbsent(horizontalTime, verticalCollision);
+            particleCollisionTimes.putIfAbsent(currentTime + horizontalTime, verticalCollision);
         }
+         */
     }
 
     public void updateCollisionTimes(Particle p1, Particle p2, Double time) {
         particleCollisionTimes.remove(time);
         List<Double> keys = new ArrayList<>(particleCollisionTimes.keySet());
+        /*
         for (Double d : keys) {
             if (d > time) {
                 Collision c = particleCollisionTimes.get(d);
@@ -65,9 +68,11 @@ public class Container {
                     particleCollisionTimes.remove(d);
             }
         }
-        setCollisionTimes(p1);
+
+         */
+        setCollisionTimes(p1, time);
         if (p2 != null) {
-            setCollisionTimes(p2);
+            setCollisionTimes(p2, time);
         }
     }
 

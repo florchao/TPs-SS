@@ -15,14 +15,13 @@ public class Main {
 
     private static void generateParticles(FileWriter inputFile) throws IOException {
         double weight = 1.00;
-        double radius = 0.0015;
+        double radius = 0.015;
         double v = 0.01;
         double length = 0.09;
         inputFile.write("     " + N);
 
         double rx, ry, theta, vx, vy;
         for (int i = 0; i < N; i++) {
-            //all negative because they are in the first container which is negative x
             rx = length * Math.random();
             ry = length * Math.random();
             theta = 2 * Math.PI * Math.random();
