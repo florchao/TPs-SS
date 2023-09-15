@@ -109,14 +109,15 @@ public class Particle {
         return Objects.hash(id);
     }
 
-    public void collisionAgainstHorizontalWall(Double time){
+    public void collisionAgainstHorizontalWall(){
         setVy(-getVy());
-        updatePosition(time);
     }
 
     public void updatePosition(double time) {
-        setxPos(getxPos()+time*getVx());
+        double newxPos = getxPos()+time*getVx();
+        setxPos(newxPos);
         setyPos(getyPos()+time*getVy());
+        System.out.println("New Pos: x: " + getxPos() + " y: " + getyPos());
     }
 
     public int collisionAgainstVerticalWall(Double time, double L, double width) {
@@ -125,17 +126,16 @@ public class Particle {
         double lowerOpening = (width-L)/2;
         double upperOpening = width - ((width-L)/2);
         //passes through wall from A to B
+        setVx(-getVx());
+        /*
         if (getxPos() <= L && newxpos > L && getyPos() < upperOpening && getyPos() > lowerOpening){
-            updatePosition(time);
             return 1;
         }
         //passes through wall from B to A
         if (getxPos() >= L && newxpos < L && getyPos() < upperOpening && getyPos() > lowerOpening){
-            updatePosition(time);
             return 2;
         }
-        setVx(-getVx());
-        updatePosition(time);
+        */
         return 0;
     }
 
@@ -162,5 +162,83 @@ public class Particle {
         p2.setxPos(p2.getxPos()+time*p2.getVx());
         p2.setyPos(p2.getyPos()+time*p2.getVy());
 
+    }
+
+    public boolean isInsideBoundaries(double containerWidth, double L) {
+        if (xPos < 0 || yPos < 0) {
+            return false;
+        }
+        if (yPos > containerWidth) {
+            return false;
+        }
+        if (xPos > 2 * containerWidth) {
+            return false;
+        }
+        if (xPos > containerWidth && xPos < 2 * containerWidth) {
+            if (yPos > (containerWidth / 2) - (L / 2) && yPos < (containerWidth / 2) + (L / 2)) {
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public Double timeCollisionAgainstParticle (Particle p2) {
+        double time = Double.POSITIVE_INFINITY;
+
+        double sigma = this.getRadius() + p2.getRadius();
+
+        double deltaVx = p2.getVx() - this.getVx();
+        double deltaVy = p2.getVy() - this.getVy();
+
+        double deltaRx = p2.getxPos() - this.getxPos();
+        double deltaRy = p2.getyPos() - this.getyPos();
+
+        double deltaR2 = deltaRx * deltaRx + deltaRy * deltaRy;
+        double deltaV2 = deltaVx * deltaVx + deltaVy * deltaVy;
+        double deltaRV = deltaVx*deltaRx + deltaRy*deltaVy;
+
+        double d = (deltaRV * deltaRV) - deltaV2 * (deltaR2 - (sigma * sigma));
+
+        if (deltaRV >= 0 || d < 0)
+            return time;
+
+        time = -1*(deltaRV + Math.sqrt(d))/deltaV2;
+
+        return time;
+    }
+
+    public Double timeCollisionAgainstHorizontalWall(double width, double L){
+        double time = Double.POSITIVE_INFINITY;
+        if (this.getVy() > 0){
+            if (this.getxPos() < width)
+                time = (width - this.getRadius() - this.getyPos())/ this.getVy();
+            else
+                time = ((width + L) - this.getRadius() - this.getyPos())/ this.getVy();
+        } else if ( this.getVy() < 0) {
+            if (this.getxPos() < width)
+                time = (this.getRadius() - this.getyPos())/this.getVy();
+            else
+                time = ((width - L) + this.getRadius() - this.getyPos())/this.getVy();
+        }
+        return time;
+    }
+
+    public Double timeCollisionAgainstVerticalWall(double width, double L){
+        double time = Double.POSITIVE_INFINITY;
+        if (this.getVx() > 0){
+            if (this.getxPos() > width)
+                time = ((width+L) - this.getRadius() - this.getxPos())/ this.getVx();
+            else{
+                double auxTime = (width - this.getRadius() - this.getxPos())/ this.getVx();
+                double middleY = this.getyPos() + this.getVy() * auxTime;
+                if (middleY + this.getRadius() < (L + width) / 2 || middleY - this.getRadius() > (L - width) / 2) {
+                    time = ((width+L) - this.getRadius()-this.getxPos())/ this.getVx();
+                }
+            }
+        } else if ( this.getVx() < 0) {
+            time = (this.getRadius() - this.getxPos())/this.getVx();
+        }
+        return time;
     }
 }
