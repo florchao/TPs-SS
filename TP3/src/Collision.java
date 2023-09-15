@@ -24,21 +24,35 @@ public class Collision {
     }
 
 
-    public Double timeCollisionAgainstHorizontalWall(){
+    public Double timeCollisionAgainstHorizontalWall(double width, double L){
         Double time = Double.POSITIVE_INFINITY;
         if (p1.getVy() > 0){
-            time = (1-p1.getRadius()-p1.getyPos())/ p1.getVy();
+            if (p1.getxPos() < width)
+                time = (width - p1.getRadius() - p1.getyPos())/ p1.getVy();
+            else
+                time = ((width + L)/2 - p1.getRadius() - p1.getyPos())/ p1.getVy();
         } else if ( p1.getVy() < 0) {
-            time = (p1.getRadius() - p1.getyPos())/p1.getVy();
+            if (p1.getxPos() < width)
+                time = (p1.getRadius() - p1.getyPos())/p1.getVy();
+            else
+                time = ((width - L)/2 + p1.getRadius() - p1.getyPos())/p1.getVy();
         }
         return time;
     }
 
-    public Double timeCollisionAgainstVerticalWall(){
+    public Double timeCollisionAgainstVerticalWall(double width, double L){
         Double time = Double.POSITIVE_INFINITY;
         if (p1.getVx() > 0){
-            time = (1-p1.getRadius()-p1.getxPos())/ p1.getVx();
-        } else if ( p1.getVy() < 0) {
+            if (p1.getxPos() > width)
+                time = ((width+L) - p1.getRadius() - p1.getxPos())/ p1.getVx();
+            else{
+                double auxTime = (width - p1.getRadius() - p1.getxPos())/ p1.getVx();
+                double middleY = p1.getyPos() + p1.getVy() * auxTime;
+                if (middleY + p1.getRadius() < (L + width) / 2 || middleY - p1.getRadius() > (L - width) / 2) {
+                    time = ((width+L) - p1.getRadius()-p1.getxPos())/ p1.getVx();
+                }
+            }
+        } else if ( p1.getVx() < 0) {
             time = (p1.getRadius() - p1.getxPos())/p1.getVx();
         }
         return time;
@@ -47,13 +61,13 @@ public class Collision {
     public Double timeCollisionAgainstParticle () {
         Double time = Double.POSITIVE_INFINITY;
 
-        double sigma = Math.pow(p1.getRadius() + p2.getRadius(), 2);
+        double sigma = p1.getRadius() + p2.getRadius();
 
-        double deltaVx = p1.getVx() - p2.getVx();
-        double deltaVy = p1.getVy() - p2.getVy();
+        double deltaVx = Math.abs(p1.getVx() - p2.getVx());
+        double deltaVy = Math.abs(p1.getVy() - p2.getVy());
 
-        double deltaRx = p1.getxPos() - p2.getxPos();
-        double deltaRy = p1.getyPos() - p2.getyPos();
+        double deltaRx = Math.abs(p1.getxPos() - p2.getxPos());
+        double deltaRy = Math.abs(p1.getyPos() - p2.getyPos());
 
         double deltaR2 = Math.pow(deltaRx, 2) + Math.pow(deltaRy, 2);
         double deltaV2 = Math.pow(deltaVx, 2) + Math.pow(deltaVy, 2);
@@ -62,7 +76,7 @@ public class Collision {
         if (deltaRV >= 0)
             return time;
         
-        double d = Math.pow(deltaRV, 2) - (deltaV2)*(deltaR2-sigma);
+        double d = Math.pow(deltaRV, 2) - (deltaV2)*(deltaR2-Math.pow(sigma,2));
 
         if (d < 0)
             return time;

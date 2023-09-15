@@ -38,27 +38,31 @@ public class Container {
             }
         }
         Collision verticalCollision = new Collision(p1, false, true);
-        Double verticalTime = verticalCollision.timeCollisionAgainstVerticalWall();
+        Double verticalTime = verticalCollision.timeCollisionAgainstVerticalWall(width, L);
         if (verticalTime != Double.POSITIVE_INFINITY) {
             particleCollisionTimes.putIfAbsent(verticalTime, verticalCollision);
         }
         Collision horizontalCollision = new Collision(p1, true, false);
-        Double horizontalTime = horizontalCollision.timeCollisionAgainstHorizontalWall();
+        Double horizontalTime = horizontalCollision.timeCollisionAgainstHorizontalWall(width, L);
         if (horizontalTime != Double.POSITIVE_INFINITY) {
             particleCollisionTimes.putIfAbsent(horizontalTime, verticalCollision);
         }
     }
 
     public void updateCollisionTimes(Particle p1, Particle p2, Double time) {
-        for (Double d : particleCollisionTimes.keySet()) {
+        particleCollisionTimes.remove(time);
+        List<Double> keys = new ArrayList<>(particleCollisionTimes.keySet());
+        for (Double d : keys) {
             if (d > time) {
                 Collision c = particleCollisionTimes.get(d);
-                if (c.getP1().equals(p1) || c.getP2().equals(p1)) {
+                if (c.getP1().equals(p1))
                     particleCollisionTimes.remove(d);
-                }
-                if (c.getP1().equals(p2) || c.getP2().equals(p2)) {
+                else if (c.getP2() != null && c.getP2().equals(p1))
                     particleCollisionTimes.remove(d);
-                }
+                else if (c.getP1().equals(p2))
+                    particleCollisionTimes.remove(d);
+                else if (c.getP2() != null && c.getP2().equals(p2))
+                    particleCollisionTimes.remove(d);
             }
         }
         setCollisionTimes(p1);
@@ -86,15 +90,22 @@ public class Container {
             p1.collisionAgainstHorizontalWall(time);
             updateCollisionTimes(p1, p2, time);
         } else if (c.isVerticalWall()) {
-            if (!p1.collisionAgainstVerticalWall(time, (width - L) / 2))
+            //passes from A container to B container
+            if (p1.collisionAgainstVerticalWall(time, L, width) == 1) {
                 particlesB++;
+                particlesA--;
+            }
+            //passes from B container to A container
+            else if (p1.collisionAgainstVerticalWall(time, L, width) == 2) {
+                particlesB--;
+                particlesA++;
+            }
             updateCollisionTimes(p1, p2, time);
         } else {
             p1.collisionAgainstParticle(p2, time);
             p2.collisionAgainstParticle(p1, time);
             updateCollisionTimes(p1, p2, time);
-        }
-        particleCollisionTimes.remove(time);
+        };
     }
 
     public void moveParticles(double time) {

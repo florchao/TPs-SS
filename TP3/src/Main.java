@@ -11,7 +11,7 @@ public class Main {
     public static double L;
     private static final Set<Particle> particles = new HashSet<>();
 
-    private static final Double MAX_TIME = 60.0*30;
+    private static final Double MAX_TIME = 60.0*1;
 
     private static void generateParticles(FileWriter inputFile) throws IOException {
         double weight = 1.00;
@@ -58,18 +58,16 @@ public class Main {
             System.out.println("Error reading file data");
         }
 
-        Container container = new Container(0.9, particles);
+        Container container = new Container(L, particles);
 
         Double timeToCollide = container.getFirstCollisionTime();
-        System.out.println("Time to collide: " + timeToCollide);
 
-        Double lastTime = 0.0;
 
         while (timeToCollide < MAX_TIME){
-            container.moveParticles(timeToCollide);
+            System.out.println("Time: " + timeToCollide);
+            //container.moveParticles(timeToCollide);
             //Collision nextCollision = container.getNextCollision();
             container.executeCollisions(timeToCollide);
-            lastTime = timeToCollide;
             timeToCollide = container.getFirstCollisionTime();
         }
 

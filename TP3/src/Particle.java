@@ -119,17 +119,24 @@ public class Particle {
         setyPos(getyPos()+time*getVy());
     }
 
-    public boolean collisionAgainstVerticalWall(Double time, double middle) {
+    public int collisionAgainstVerticalWall(Double time, double L, double width) {
         //returns false if it passes through wall, true if it collides
         double newxpos = getxPos()+time*getVx();
-        //passes through wall
-        if (getxPos() <= 0 &&  newxpos > 0 && getyPos() <= middle && getyPos() >= middle){
+        double lowerOpening = (width-L)/2;
+        double upperOpening = width - ((width-L)/2);
+        //passes through wall from A to B
+        if (getxPos() <= L && newxpos > L && getyPos() < upperOpening && getyPos() > lowerOpening){
             updatePosition(time);
-            return false;
+            return 1;
+        }
+        //passes through wall from B to A
+        if (getxPos() >= L && newxpos < L && getyPos() < upperOpening && getyPos() > lowerOpening){
+            updatePosition(time);
+            return 2;
         }
         setVx(-getVx());
         updatePosition(time);
-        return true;
+        return 0;
     }
 
     public void collisionAgainstParticle(Particle p2, Double time){
