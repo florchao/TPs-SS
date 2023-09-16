@@ -1,7 +1,7 @@
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -12,7 +12,7 @@ public class Main {
     public static double L;
     private static final Set<Particle> particles = new HashSet<>();
 
-    private static final int MAX_TIME = 500000;
+    private static final int MAX_TIME = 1000;
 
     private static void generateParticles(FileWriter inputFile) throws IOException {
         double weight = 1.00;
@@ -22,14 +22,36 @@ public class Main {
         inputFile.write("     " + N);
 
         double rx, ry, theta, vx, vy;
-        for (int i = 0; i < N; i++) {
+
+        Set<Particle> addedParticles = new HashSet<>();
+        for (int i = 0; addedParticles.size() < N; i++) {
             rx = length * Math.random();
+            if (rx - radius < 0)
+                rx += radius;
+            if (rx + radius > length)
+                rx -= radius;
             ry = length * Math.random();
+            if (ry - radius < 0)
+                ry += radius;
+            if (ry + radius > length)
+                ry -= radius;
             theta = 2 * Math.PI * Math.random();
             vx = v * Math.cos(theta);
             vy = v * Math.sin(theta);
-            inputFile.write("\n   " + rx + "    " + ry + "    " + vx + "    " + vy + "    " + weight + "    " + radius);
+            if (addedParticles.isEmpty()){
+                inputFile.write("\n   " + rx + "    " + ry + "    " + vx + "    " + vy + "    " + weight + "    " + radius);
+                addedParticles.add(new Particle(i, rx, ry, vx, vy, weight, radius));
+            }
+            Set<Particle> arrayCopy = new HashSet<>(addedParticles);
+            for (Particle p : arrayCopy){
+                if (Math.sqrt(Math.pow((rx - p.getxPos()),2) + Math.pow((ry - p.getyPos()),2)) >= 2 * radius + 0.001){
+                    inputFile.write("\n   " + rx + "    " + ry + "    " + vx + "    " + vy + "    " + weight + "    " + radius);
+                    addedParticles.add(new Particle(i, rx, ry, vx, vy, weight, radius));
+                }
+            }
         }
+        System.out.println(addedParticles.size());
+
         inputFile.close();
     }
 
@@ -38,6 +60,7 @@ public class Main {
         File inputFile = new File("./files/input.txt");
         File outputFile = new File("./files/output.txt");
         FileWriter inputWriter = new FileWriter(inputFile.getPath());
+        FileWriter outputWriter = new FileWriter(outputFile.getPath());
         L = Double.parseDouble(args[0]);
         N = Integer.parseInt(args[1]);
         generateParticles(inputWriter);
@@ -45,7 +68,7 @@ public class Main {
 
         List<String> data;
         try {
-            data = Files.readAllLines(Path.of(inputFile.getPath()));
+            data = Files.readAllLines(Path.of("./files/input.txt"));
         } catch (IOException e) {
             throw new RuntimeException("Error trying to read lines");
         }
@@ -60,19 +83,22 @@ public class Main {
             System.out.println("Error reading file data");
         }
 
-        double timeElapsed = 0;
         Container container = new Container(L, particles);
-        generateOutputFile(outputFile, container.getParticles(), 0.0);
+        double timeElapsed = 0.0;
+        writeToOutputFile(outputWriter, container.getParticles(), timeElapsed);
+        DataManager dm = new DataManager();
 
-        for (double i = 0; i < MAX_TIME; i++) {
-            double time = container.executeCollisions();
+        for (int i = 0; i < MAX_TIME; i++) {
+            double time = container.executeCollisions(timeElapsed);
             timeElapsed += time;
-            generateOutputFile(outputFile, container.getParticles(), timeElapsed);
+            System.out.println(timeElapsed);
+            writeToOutputFile(outputWriter, container.getParticles(), timeElapsed);
+            dm.writeDynamicFile(container.getParticles(),"./files/outputDM.dump", timeElapsed);
         }
+        outputWriter.close();
     }
 
-    public static void generateOutputFile(File outputFile, Set<Particle> particles, double time) throws IOException {
-        FileWriter outputWriter = new FileWriter(outputFile.getPath());
+    public static void writeToOutputFile(FileWriter outputFile, Set<Particle> particles, Double time) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(time).append("\n");
         for (Particle particle : particles) {
@@ -85,7 +111,6 @@ public class Main {
                     particle.getId()));
         }
 
-        outputWriter.write(stringBuilder.toString());
-        outputWriter.close();
+        outputFile.write(stringBuilder.toString());
     }
 }

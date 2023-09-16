@@ -1,6 +1,6 @@
 import java.util.Objects;
 
-public class Collision {
+public class Collision implements Comparable<Collision>{
 
     private Particle p1;
     private Particle p2;
@@ -8,23 +8,13 @@ public class Collision {
     private double time;
 
 
-    private boolean isHorizontalWall;
+    private CollisionType collisionType;
 
-    private boolean isVerticalWall;
-
-    public Collision(Particle p1, Particle p2, double time) {
+    public Collision(Particle p1, Particle p2, CollisionType collisionType, double time) {
         this.p1 = p1;
         this.p2 = p2;
         this.time = time;
-    }
-
-    public Collision(Particle p1, boolean isHorizontalWall, boolean isVerticalWall, double time) {
-        this.p1 = p1;
-        if (isHorizontalWall == isVerticalWall)
-            throw new IllegalArgumentException("isHorizontalWall cannot be equal to isVerticalWall");
-        this.isHorizontalWall = isHorizontalWall;
-        this.isVerticalWall = isVerticalWall;
-        this.time = time;
+        this.collisionType = collisionType;
     }
 
     public Particle getP1() {
@@ -35,15 +25,11 @@ public class Collision {
         return p2;
     }
 
-    public boolean isHorizontalWall() {
-        return isHorizontalWall;
+    public CollisionType getCollisionType(){
+        return collisionType;
     }
 
-    public boolean isVerticalWall() {
-        return isVerticalWall;
-    }
-
-    public double getTime() {
+    public Double getTime() {
         return time;
     }
 
@@ -54,7 +40,7 @@ public class Collision {
         Collision collision = (Collision) o;
         if (p1.equals(collision.getP1()) && p2.equals(collision.getP2())) {
             if (p2 == null) {
-                return (isHorizontalWall && collision.isHorizontalWall()) || (isVerticalWall && collision.isVerticalWall());
+                return collisionType.equals(((Collision) o).getCollisionType());
             }
             return true;
         } else return p1.equals(collision.getP2()) && p2.equals(collision.getP1());
@@ -65,4 +51,8 @@ public class Collision {
         return p2 == null ? Objects.hash(p1.getId()) : Objects.hash(p1.getId(), p2.getId());
     }
 
+    @Override
+    public int compareTo(Collision o) {
+        return Double.compare(this.time, o.time);
+    }
 }
