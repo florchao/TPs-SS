@@ -42,13 +42,32 @@ public class Main {
                 inputFile.write("\n   " + rx + "    " + ry + "    " + vx + "    " + vy + "    " + weight + "    " + radius);
                 addedParticles.add(new Particle(i, rx, ry, vx, vy, weight, radius));
             }
-            Set<Particle> arrayCopy = new HashSet<>(addedParticles);
-            for (Particle p : arrayCopy){
-                if (Math.sqrt(Math.pow((rx - p.getxPos()),2) + Math.pow((ry - p.getyPos()),2)) >= 2 * radius + 0.001){
-                    inputFile.write("\n   " + rx + "    " + ry + "    " + vx + "    " + vy + "    " + weight + "    " + radius);
-                    addedParticles.add(new Particle(i, rx, ry, vx, vy, weight, radius));
+            else {
+                boolean added = false;
+                while (!added) {
+                    rx = length * Math.random();
+                    if (rx - radius < 0)
+                        rx += radius;
+                    if (rx + radius > length)
+                        rx -= radius;
+                    ry = length * Math.random();
+                    if (ry - radius < 0)
+                        ry += radius;
+                    if (ry + radius > length)
+                        ry -= radius;
+                    Set<Particle> arrayCopy = new HashSet<>(addedParticles);
+                    for (Particle p : arrayCopy) {
+                        if (Math.sqrt(Math.pow((rx - p.getxPos()), 2) + Math.pow((ry - p.getyPos()), 2)) >= 2 * radius + 0.001) {
+                            added = true;
+                        }
+                    }
+                    if (added){
+                        inputFile.write("\n   " + rx + "    " + ry + "    " + vx + "    " + vy + "    " + weight + "    " + radius);
+                        addedParticles.add(new Particle(i, rx, ry, vx, vy, weight, radius));
+                    }
                 }
             }
+
         }
         System.out.println(addedParticles.size());
 
