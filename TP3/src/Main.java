@@ -1,162 +1,212 @@
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-
+import java.util.HashSet;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.TreeSet;
 public class Main {
+    private static final int MAX_TIME = 400;
+    private static final double width = 400;
+    private static Container container;
+    private static TreeSet<Particle> particles;
+    private static int N;
+    private static double L;
 
-    public static int N;
-    public static double L;
-    private static final Set<Particle> particles = new HashSet<>();
-    private static Set<Limit> limits = new HashSet<>();
+    private static Set<Limit> boundaries = new HashSet<>();
 
-    private static final int MAX_TIME = 60;
+    public static void main(String[] args) {
 
-    private static void generateParticles(FileWriter inputFile) throws IOException {
-        double weight = 1.00;
-        double radius = 0.0015;
-        double v = 0.01;
-        double length = 0.09;
-        inputFile.write("     " + N);
-
-        double rx, ry, theta, vx, vy;
-
-        Set<Particle> addedParticles = new HashSet<>();
-        for (int i = 0; addedParticles.size() < N; i++) {
-            rx = length * Math.random();
-            if (rx - radius < 0)
-                rx += radius;
-            if (rx + radius > length)
-                rx -= radius;
-            ry = length * Math.random();
-            if (ry - radius < 0)
-                ry += radius;
-            if (ry + radius > length)
-                ry -= radius;
-            theta = 2 * Math.PI * Math.random();
-            vx = v * Math.cos(theta);
-            vy = v * Math.sin(theta);
-            if (addedParticles.isEmpty()){
-                inputFile.write("\n   " + rx + "    " + ry + "    " + vx + "    " + vy + "    " + weight + "    " + radius);
-                addedParticles.add(new Particle(i, rx, ry, vx, vy, weight, radius));
-            }
-            else {
-                boolean added = false;
-                while (!added) {
-                    rx = length * Math.random();
-                    if (rx - radius < 0)
-                        rx += radius;
-                    if (rx + radius > length)
-                        rx -= radius;
-                    ry = length * Math.random();
-                    if (ry - radius < 0)
-                        ry += radius;
-                    if (ry + radius > length)
-                        ry -= radius;
-                    Set<Particle> arrayCopy = new HashSet<>(addedParticles);
-                    for (Particle p : arrayCopy) {
-                        if (Math.sqrt(Math.pow((rx - p.getxPos()), 2) + Math.pow((ry - p.getyPos()), 2)) >= 2 * radius + 0.001) {
-                            added = true;
-                            break;
-                        }
-                    }
-                    if (added){
-                        inputFile.write("\n   " + rx + "    " + ry + "    " + vx + "    " + vy + "    " + weight + "    " + radius);
-                        addedParticles.add(new Particle(i, rx, ry, vx, vy, weight, radius));
-                    }
-                }
-            }
-
-        }
-        System.out.println(addedParticles.size());
-
-        inputFile.close();
-    }
-
-    public static void main(String[] args) throws IOException {
-
-        File inputFile = new File("./files/input.txt");
-        File outputFile = new File("./files/output.txt");
-        FileWriter inputWriter = new FileWriter(inputFile.getPath());
-        FileWriter outputWriter = new FileWriter(outputFile.getPath());
         L = Double.parseDouble(args[0]);
         N = Integer.parseInt(args[1]);
-        generateParticles(inputWriter);
+        particles = new TreeSet<>();
+
+        if (L > width) {
+            throw new IllegalArgumentException("L must be smaller than width");
+        }
+
+        ParticleGenerator.generateFile(N);
+        readParticlesFiles("./files/input.txt");
+        container = new Container(L, particles);
+        setBoundaries();
+
+        double timeElapsed = 0.0;
+        double stationary = 0;
+        int frame = 0;
+        double timeOfNextCollision = container.executeCollisions(timeElapsed);
+
+        while (timeElapsed < MAX_TIME && timeElapsed - stationary < 25) {
+
+            Collision next = container.getCollisions().first();
+            moveParticles(timeOfNextCollision - timeElapsed);
+
+            if (next.getType() != CollisionType.PARTICLE) {
+                double collisionV;
+                if (next.getType() == CollisionType.LEFT_HORIZONTAL_WALL || next.getType() == CollisionType.RIGHT_HORIZONTAL_WALL)
+                    collisionV = next.getP1().getVy();
+                else
+                    collisionV = next.getP1().getVx();
+                container.addPressure(collisionV, next.getType(), timeOfNextCollision);
+            }
+
+            double leftPressure = container.getLeftSidePressure(timeOfNextCollision, 0);
+            double rightPressure = container.getRightSidePressure(timeOfNextCollision, 0);
+            if (rightPressure != 0 && Math.abs(leftPressure - rightPressure) < 0.025) {
+                // stationary++;
+            } else if (next.getType() != CollisionType.PARTICLE) {
+                stationary = timeElapsed;
+            }
+
+            next.collide(container.getWidth(), container.getL());
+            if (frame % 25 == 0) {
+                writeDynamicFile(particles, boundaries, "./files/output/simulation" + N +".dump", timeElapsed);
+            }
+            writePressureFile(leftPressure, rightPressure, timeElapsed, "./files/output/pressures" + N +".txt");
+
+            container.getCollisions().removeIf(c -> c.getP1().equals(next.getP1()) ||
+                    (c.getP2() != null && c.getP2().equals(next.getP1())) ||
+                    c.getP1().equals(next.getP2()) ||
+                    (c.getP2() != null && c.getP2().equals(next.getP2()))
+                            &&
+                            (
+                                    !c.getP1().equals(container.getUpperCorner()) &&
+                                            !c.getP2().equals(container.getUpperCorner()) &&
+                                            !c.getP1().equals(container.getLowerCorner()) &&
+                                            !c.getP2().equals(container.getLowerCorner())
+                            ));
+
+            timeElapsed = timeOfNextCollision;
+            if (next.getP1() != container.getUpperCorner() && next.getP1() != container.getLowerCorner())
+                container.calculateCollisions(next.getP1(), timeElapsed);
+            if (next.getP2() != null && next.getP2() != container.getUpperCorner() && next.getP2() != container.getLowerCorner()) {
+                container.calculateCollisions(next.getP2(), timeElapsed);
+            }
+            timeOfNextCollision = container.getCollisions().first().getTime();
+            frame++;
+        }
+        double pressure = Math.abs(container.getLeftSidePressure(timeElapsed, 0));
+        writeFinalPressure(pressure, "./files/output/finalPressure" + N+".txt");
+
+    }
+
+    private static void setBoundaries(){
         for (double i = 0; i < 0.09; i += 0.0005) {
 
-            limits.add(new Limit(i, 0));
-            limits.add(new Limit(i, 0.09));
-            limits.add(new Limit(0, i));
-            limits.add(new Limit(0.09+i, (0.09-L)/2));
-            limits.add(new Limit(0.09+i, (0.09+L)/2));
+            boundaries.add(new Limit(i, 0));
+            boundaries.add(new Limit(i, 0.09));
+            boundaries.add(new Limit(0, i));
+            boundaries.add(new Limit(0.09+i, (0.09-L)/2));
+            boundaries.add(new Limit(0.09+i, (0.09+L)/2));
             if(i > (0.09+L)/2 || i < (0.09-L)/2){
-                limits.add(new Limit(0.09, i));
+                boundaries.add(new Limit(0.09, i));
             }
             else{
-                limits.add(new Limit(0.18, i));
+                boundaries.add(new Limit(0.18, i));
             }
         }
+    }
 
+    public static void moveParticles(double time){
+        particles.forEach(p -> {
+            p.updatePosition(time);
+        });
+    }
 
-        List<String> data;
+    private static void readParticlesFiles(String dynamicPath) {
         try {
-            data = Files.readAllLines(Path.of("./files/input.txt"));
-        } catch (IOException e) {
-            throw new RuntimeException("Error trying to read lines");
-        }
-        N = Integer.parseInt(data.get(0).split("     ")[1]);
+            File dynamicFile = new File(dynamicPath);
 
-        for (int i = 1; i < data.size(); i++){
-            String[] line = data.get(i).split("    ");
-            particles.add(new Particle(i-1, Double.parseDouble(line[0]), Double.parseDouble(line[1]), Double.parseDouble(line[2]), Double.parseDouble(line[3]), Double.parseDouble(line[4]), Double.parseDouble(line[5])));
-        }
+            Scanner dynamicScanner = new Scanner(dynamicFile);
+            dynamicScanner.nextInt();
+            dynamicScanner.nextInt();
 
-        if (particles.size() != N) {
-            System.out.println("Error reading file data");
-        }
+            while (dynamicScanner.hasNext()) {
+                int id = dynamicScanner.nextInt();
+                float x = dynamicScanner.nextFloat();
+                float y = dynamicScanner.nextFloat();
+                double vx = dynamicScanner.nextDouble();
+                double vy = dynamicScanner.nextDouble();
+                double radius = dynamicScanner.nextFloat();
+                double mass = dynamicScanner.nextFloat();
 
-        Container container = new Container(L, particles);
-        double timeElapsed = 0.0;
-        writeToOutputFile(outputWriter, container.getParticles(), timeElapsed);
-        String[] outputs = {
-                "./data/output/dynamic/Dynamic_N_" + N + "_L_" + L +"_v" +"1.dump",
-                "./data/output/VaN_" + N + "_L_" + L + "_v" +"1.txt",
-                "./data/output/VaN_" + N + "_L_" + L +"_v" +"1.txt",
-                "./data/output/VaN_" + N + "_L_" + L +"_v" +"1.txt",
-        };
-        DataManager dm =  new DataManager();
-        int stationary = 0;
-
-        while (timeElapsed < MAX_TIME && stationary < 50) {
-            double time = container.executeCollisions(timeElapsed);
-            timeElapsed += time;
-            double leftPressure = container.getLeftSidePressure(timeElapsed, timeElapsed - time);
-            double rightPressure = container.getRightSidePressure(timeElapsed, timeElapsed - time);
-            if (rightPressure != 0 && Math.abs(leftPressure-rightPressure) < 0.0001){
-                stationary++;
+                Particle p = new Particle(radius, vx, vy, x, y, mass);
+                particles.add(p);
             }
-            writeToOutputFile(outputWriter, container.getParticles(), timeElapsed);
-            dm.writeDynamicFile(container.getParticles(), limits,"./files/outputDM.dump", timeElapsed);
-        }
-        outputWriter.close();
-    }
-
-    public static void writeToOutputFile(FileWriter outputFile, Set<Particle> particles, Double time) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(time).append("\n");
-        for (Particle particle : particles) {
-            stringBuilder.append(String.format(Locale.US, "%f\t%f\t%f\t%f\t%f\t%d\n",
-                    particle.getxPos(),
-                    particle.getyPos(),
-                    particle.getVx(),
-                    particle.getVy(),
-                    particle.getRadius(),
-                    particle.getId()));
+            dynamicScanner.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
-        outputFile.write(stringBuilder.toString());
     }
+
+     public static void writePressureFile(double left, double right, double time, String filePath){
+        try {
+            File file = new File(filePath);
+            FileWriter writer = new FileWriter(file, true);
+            StringBuilder data = new StringBuilder();
+            data.append(time + " " + left + " " + right + "\n");
+            writer.write(data.toString());
+            writer.close();
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void writeFinalPressure(double pressure, String filePath){
+        try {
+            File file = new File(filePath);
+            FileWriter writer = new FileWriter(file, true);
+            StringBuilder data = new StringBuilder();
+            data.append(pressure + "\n");
+            writer.write(data.toString());
+            writer.close();
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void writeDynamicFile(Set<Particle> particles, Set<Limit> limits, String filePath, double time) {
+        try {
+            File file = new File(filePath);
+            FileWriter writer = new FileWriter(file, true);
+            if (file.createNewFile()) {
+                int id = 1;
+                File startingFile = new File("./data/input/dynamic.txt");
+                Scanner scanner = new Scanner(startingFile);
+                while (scanner.hasNext()) {
+                    String line = scanner.nextLine();
+                    writer.write(id + " " + line + "\n");
+                    id++;
+                }
+                scanner.close();
+                System.out.println("File created successfully");
+            } else {
+                StringBuilder data = new StringBuilder();
+                int n = N + limits.size();
+                data.append(n + "\n");
+                data.append("Frame: " + time + '\n');
+                for (Particle p : particles) {
+                    data.append(p.getId() + " " + p.getXpos() + " " + p.getYpos() + " " + p.getVx() + " " + p.getVy()
+                            + " " + 255
+                            + " " + 0
+                            + " " + 255
+                            + " " + p.getRadius()
+                            + "\n");
+                }
+                for (Limit p : limits) {
+                    data.append(p.getId() + " " + p.getXpos() + " " + p.getYpos() + " " + p.getVx() + " " + p.getVy()
+                            + " " + 255
+                            + " " + 255
+                            + " " + 255
+                            + " " + p.getRadius()
+                            + "\n");
+                }
+
+                writer.write(data.toString());
+            }
+            writer.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

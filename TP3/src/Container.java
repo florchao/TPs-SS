@@ -1,144 +1,169 @@
-import java.util.*;
-
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 public class Container {
-
-    private final static double width = 0.09;
-
-    private final double L;
-
-    private int particlesA;
-
-    private int particlesB;
-
-    private final Particle upperCorner;
-
-    private final Particle lowerCorner;
-
-    private Set<Particle> particles;
-
-    private TreeSet<Collision> particleCollisionTimes;
-
+    private final double width = 0.09;
+    private double L;
+    private TreeSet<Particle> particles;
+    private TreeSet<Collision> collisions;
+    private Particle upperCorner;
+    private Particle lowerCorner;
+    private double leftSideI = 0;
+    private double rightSideI = 0;
+    private double totalI = 0;
+    private double leftPerimeter;
+    private double rightPerimeter;
+    private double totalPerimeter;
     private final TreeMap<Double, Double> leftSideImpulses = new TreeMap<>();
     private final TreeMap<Double, Double> rightSideImpulses = new TreeMap<>();
     private final TreeMap<Double, Double> totalImpulses = new TreeMap<>();
 
-    public Container(double L, Set<Particle> particles) {
-        this.L = L;
-
+    public Container(double l, TreeSet<Particle> particles) {
+        this.L = l;
         this.particles = particles;
-
-        this.particlesA = particles.size();
-        this.particlesB = 0;
-
-        this.particleCollisionTimes = new TreeSet<> ();
-
-        this.upperCorner = new Particle(particles.size(), width, (L+width)/2, 0, 0, Double.POSITIVE_INFINITY, 0);
-        this.lowerCorner = new Particle(particles.size()+1, width, (width-L)/2, 0, 0, Double.POSITIVE_INFINITY, 0);
+        this.collisions = new TreeSet<>();
+        this.upperCorner = new Particle(0, 0,0, width, (L+ width)/2, Double.POSITIVE_INFINITY);
+        this.lowerCorner = new Particle(0, 0,0, width, (width -L)/2, Double.POSITIVE_INFINITY);
+        this.leftPerimeter = 4* width - L;
+        this.rightPerimeter = 2* width + L;
+        this.totalPerimeter = leftPerimeter + rightPerimeter;
     }
 
-    //For each particle, adds the first collision thats going to happen
-    private void setCollisionTimes(Particle p1, Double currentTime) {
-        Collision newCollision = null;
-        for (Particle p2 : particles) {
-            if (!p1.equals(p2)) {
-                double time = p1.timeCollisionAgainstParticle(p2);
-                if (time != Double.POSITIVE_INFINITY && time > 0) {
-                    newCollision = new Collision(p1, p2, CollisionType.PARTICLE, time);
-                }
-            }
-        }
-
-        Double timeToUpperCorner = p1.timeCollisionAgainstParticle(this.upperCorner);
-        if (timeToUpperCorner != Double.POSITIVE_INFINITY && timeToUpperCorner > 0) {
-            if (newCollision == null || newCollision.getTime() > timeToUpperCorner) {
-                newCollision = new Collision(p1, this.upperCorner, CollisionType.UPPER_CORNER, timeToUpperCorner);
-            }
-        }
-
-        Double timeToLowerCorner = p1.timeCollisionAgainstParticle(this.lowerCorner);
-        if (timeToLowerCorner != Double.POSITIVE_INFINITY && timeToLowerCorner > 0) {
-            if (newCollision == null || newCollision.getTime() > timeToLowerCorner) {
-                newCollision = new Collision(p1, this.lowerCorner, CollisionType.LOWER_CORNER, timeToLowerCorner);
-            }
-        }
-
-        Double verticalTime = p1.timeCollisionAgainstVerticalWall(width, L, leftSideImpulses, totalImpulses, rightSideImpulses);
-        if (verticalTime != Double.POSITIVE_INFINITY && verticalTime > 0) {
-            if (newCollision == null || newCollision.getTime() > verticalTime){
-                newCollision = new Collision(p1, null, CollisionType.VERTICAL_WALL, verticalTime);
-            }
-        }
-
-        Double horizontalTime = p1.timeCollisionAgainstHorizontalWall(width, L);
-        if (horizontalTime != Double.POSITIVE_INFINITY && horizontalTime > 0) {
-            if (newCollision == null || newCollision.getTime() > horizontalTime){
-                newCollision = new Collision(p1, null, CollisionType.HORIZONTAL_WALL, horizontalTime);
-            }
-        }
-        if (newCollision != null) {
-            particleCollisionTimes.add(newCollision);
-        }
-    }
-
-    // 1- Calculo todas las colisiones posibles
-    // 2- Sucede colision
-    // 3- descarto todas las colisiones que ya tenian
-    // 4- Sucede una colision -> recalculo todas las colisiones posibles para ambas
-    // particulas
-
-
-    public Double executeCollisions(Double currentTime) {
-        particleCollisionTimes = new TreeSet<> ();
-        for (Particle p : particles){
-            setCollisionTimes(p, currentTime);
-        }
-        if (particleCollisionTimes.isEmpty()) {
-            throw new IllegalStateException("No particle collisions found");
-        }
-        Collision newCollision = particleCollisionTimes.pollFirst();
-        Particle p1 = newCollision.getP1();
-        Particle p2 = newCollision.getP2();
-
+    public double executeCollisions(double time) {
+        double timeOfFirstCollision = Double.POSITIVE_INFINITY;
         for (Particle p : particles) {
-            p.updatePosition(newCollision.getTime());
+            timeOfFirstCollision = Math.min(timeOfFirstCollision, calculateCollisions(p, time));
         }
+        if (timeOfFirstCollision == Double.POSITIVE_INFINITY) {
+            throw new RuntimeException("No collisions found");
+        }
+        return timeOfFirstCollision;
+    }
 
-        if (p2 == null) {
-            switch (newCollision.getCollisionType()) {
-                case HORIZONTAL_WALL: {
-                    p1.collisionAgainstHorizontalWall();
-                }
-                case VERTICAL_WALL: {
-                    int res = p1.collisionAgainstVerticalWall(newCollision.getTime(), L, width);
-                    //passes from A container to B container
-                    if (res == 1) {
-                        particlesB++;
-                        particlesA--;
-                    }
-                    //passes from B container to A container
-                    else if (res == 2) {
-                        particlesB--;
-                        particlesA++;
-                    }
+    public double calculateCollisions(Particle p1, double currentTime) {
+        double timeOfFirstCollision = Double.POSITIVE_INFINITY;
+        for (Particle p2 : particles) {
+            if (p1 != p2) {
+                double timeToCollision = p1.timeToCollision(p2);
+                if (timeToCollision >= 0) {
+                    Collision particleCollision = new Collision(p1, p2, timeToCollision + currentTime, CollisionType.PARTICLE);
+                    collisions.add(particleCollision);
+                    timeOfFirstCollision = Math.min(timeOfFirstCollision, particleCollision.getTime());
                 }
             }
         }
-        else
-            p1.collisionAgainstParticle(p2);
 
-        TreeSet<Collision> updatedParticleCollisionTimes = new TreeSet<>();
-
-        for (Collision aux : particleCollisionTimes) {
-            if (!aux.getP1().equals(aux.getP1()) && (aux.getP2() == null || !aux.getP2().equals(aux.getP1())) &&
-                    !aux.getP1().equals(aux.getP2()) && (aux.getP2() == null || !aux.getP2().equals(aux.getP2()))) {
-                updatedParticleCollisionTimes.add(aux);
-            }
+        Collision wallCollision = getNextWallCollision(p1, currentTime);
+        if (wallCollision.getTime() >= 0 && wallCollision.getTime() != Double.POSITIVE_INFINITY) {
+            timeOfFirstCollision = Math.min(timeOfFirstCollision, wallCollision.getTime());
+            collisions.add(wallCollision);
         }
 
-        // Replace the original particleCollisionTimes with the updated set
-        particleCollisionTimes = updatedParticleCollisionTimes;
+        return timeOfFirstCollision;
+    }
 
-        return newCollision.getTime();
+    public Collision getNextWallCollision(Particle p, double currentTime) {
+        double time = Double.POSITIVE_INFINITY;
+        CollisionType type = null;
+
+        double timeToUpperCorner = p.timeToCollision(this.upperCorner);
+        double timeToLowerCorner = p.timeToCollision(this.lowerCorner);
+
+        if (timeToUpperCorner >= 0 && timeToUpperCorner < time) {
+            time = timeToUpperCorner;
+            type = CollisionType.UPPER_MIDDLE_CORNER;
+        }
+        if (timeToLowerCorner >= 0 && timeToLowerCorner < time ) {
+            time = timeToLowerCorner;
+            type = CollisionType.LOWER_MIDDLE_CORNER;
+        }
+
+        if (p.getVx() > 0) {
+            double timeToMidWall = (width - p.getXpos() - p.getRadius()) / p.getVx();
+            double upperMidWallY = p.getYpos() + p.getVy() * timeToMidWall;
+            double lowerMidWallY = p.getYpos() + p.getVy() * timeToMidWall;
+            if (p.getXpos() < width && (upperMidWallY > (width + L) / 2 || lowerMidWallY < (width - L) / 2)) {
+                if (timeToMidWall > 0 && timeToMidWall < time) {
+                    time = timeToMidWall;
+                    type = CollisionType.MIDDLE_WALL;
+                }
+
+            } else {
+                double timeToRightVertical = (2 * width - p.getXpos() - p.getRadius()) / p.getVx();
+                if (timeToRightVertical > 0 && timeToRightVertical < time) {
+                    time = timeToRightVertical;
+                    type = CollisionType.RIGHT_VERTICAL_WALL;
+                }
+            }
+        } else if (p.getVx() < 0) {
+            double timeToLeftVertical = (p.getRadius() - p.getXpos()) / p.getVx();
+            if (timeToLeftVertical > 0 && timeToLeftVertical < time) {
+                time = timeToLeftVertical;
+                type = CollisionType.LEFT_VERTICAL_WALL;
+            }
+        }
+        if (p.getVy() > 0) {
+            double timeToMidUpper = ((width + L) / 2 - p.getYpos() - p.getRadius()) / p.getVy();
+            double midUpperX = p.getXpos() + p.getRadius() + p.getVx() * timeToMidUpper;
+            if (timeToMidUpper < 0 || midUpperX < width) {
+                double timeToCeiling = (width - p.getYpos() - p.getRadius()) / p.getVy();
+                if (timeToCeiling > 0 && timeToCeiling < time) {
+                    time = timeToCeiling;
+                    type = CollisionType.LEFT_HORIZONTAL_WALL;
+                }
+            } else if (timeToMidUpper > 0 && midUpperX > width) {
+                if (timeToMidUpper < time) {
+                    time = timeToMidUpper;
+                    type = CollisionType.RIGHT_HORIZONTAL_WALL;
+                }
+            }
+        } else if (p.getVy() < 0) {
+            double timeToMidLower = ((width - L) / 2 - p.getYpos() + p.getRadius()) / p.getVy();
+            double midLowerX = p.getXpos() + p.getRadius() + p.getVx() * timeToMidLower;
+            if (timeToMidLower < 0 || midLowerX < width) {
+                double timeToFloor = (p.getRadius() - p.getYpos()) / p.getVy();
+                if (timeToFloor > 0 && timeToFloor < time ) {
+                    time = timeToFloor;
+                    type = CollisionType.LEFT_HORIZONTAL_WALL;
+                }
+            } else if (timeToMidLower > 0 && midLowerX > width) {
+                if (timeToMidLower < time) {
+                    time = timeToMidLower;
+                    type = CollisionType.RIGHT_HORIZONTAL_WALL;
+                }
+            }
+        }
+        Particle p2 = null;
+        if (type == CollisionType.UPPER_MIDDLE_CORNER)
+            p2 = this.upperCorner;
+        else if (type == CollisionType.LOWER_MIDDLE_CORNER)
+            p2 = this.lowerCorner;
+        return new Collision(p, p2, time + currentTime, type);
+    }
+
+    public void addPressure(double v, CollisionType type, double timeOfCollision) {
+        if (type == null){
+            return;
+        }
+        switch (type) {
+            case LEFT_HORIZONTAL_WALL:
+            case LEFT_VERTICAL_WALL:
+            case MIDDLE_WALL:
+                leftSideImpulses.put(timeOfCollision, Math.abs(2*v)/leftPerimeter);
+                totalImpulses.put(timeOfCollision, Math.abs(2*v)/totalPerimeter);
+                break;
+            case RIGHT_HORIZONTAL_WALL:
+            case RIGHT_VERTICAL_WALL:
+                rightSideImpulses.put(timeOfCollision, Math.abs(2*v)/rightPerimeter);
+                totalImpulses.put(timeOfCollision, Math.abs(2*v)/totalPerimeter);
+                break;
+            case UPPER_MIDDLE_CORNER:
+            case LOWER_MIDDLE_CORNER:
+                break;
+            default:
+                throw new RuntimeException("Cannot compute pressure for collision of type " + type);
+        }
+        totalI += v / totalPerimeter;
     }
 
     public double getLeftSidePressure(double finalTime, double initialTime) {
@@ -153,8 +178,25 @@ public class Container {
         return totalImpulses.subMap(initialTime, finalTime).values().stream().mapToDouble(Double::doubleValue).sum() / (finalTime - initialTime);
     }
 
-    public Set<Particle> getParticles() {
-        return particles;
+    public double getWidth() {
+        return width;
     }
+
+    public double getL() {
+        return L;
+    }
+
+    public Particle getUpperCorner() {
+        return upperCorner;
+    }
+
+    public Particle getLowerCorner() {
+        return lowerCorner;
+    }
+
+    public TreeSet<Collision> getCollisions() {
+        return collisions;
+    }
+
 
 }

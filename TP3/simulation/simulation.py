@@ -76,7 +76,7 @@ def main():
 
     # Llama a la función de actualización de la trama
     anim = animation.FuncAnimation(fig, update_particle_for_simulation, fargs=(particle_data, ax2d, width, width, L, width), frames=len(particle_data))
-    anim.save('animation.mp4', writer='ffmpeg', fps=10)
+    anim.save('animation.gif', writer='ffmpeg', fps=30)
 
 if __name__ == "__main__":
     main()
