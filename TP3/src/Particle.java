@@ -192,13 +192,13 @@ public class Particle {
     public double timeCollisionAgainstParticle (Particle p2, CollisionType type) {
         double time = Double.POSITIVE_INFINITY;
 
-        double sigma = this.getRadius() + p2.getRadius();
+        double sigma = getRadius() + p2.getRadius();
 
-        double deltaVx = p2.getVx() - this.getVx();
-        double deltaVy = p2.getVy() - this.getVy();
+        double deltaVx = p2.getVx() - getVx();
+        double deltaVy = p2.getVy() - getVy();
 
-        double deltaRx = p2.getxPos() - this.getxPos();
-        double deltaRy = p2.getyPos() - this.getyPos();
+        double deltaRx = p2.getxPos() - getxPos();
+        double deltaRy = p2.getyPos() - getyPos();
 
         double deltaR2 = deltaRx * deltaRx + deltaRy * deltaRy;
         double deltaV2 = deltaVx * deltaVx + deltaVy * deltaVy;

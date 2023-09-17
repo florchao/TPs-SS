@@ -60,6 +60,7 @@ public class Main {
                     for (Particle p : arrayCopy) {
                         if (Math.sqrt(Math.pow((rx - p.getxPos()), 2) + Math.pow((ry - p.getyPos()), 2)) >= 2 * radius + 0.001) {
                             added = true;
+                            break;
                         }
                     }
                     if (added){
