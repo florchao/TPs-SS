@@ -1,8 +1,4 @@
-import java.io.FileWriter;
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public class Container {
 
@@ -17,6 +13,10 @@ public class Container {
     private Set<Particle> particles;
 
     private TreeSet<Collision> particleCollisionTimes;
+
+    private final TreeMap<Double, Double> leftSideImpulses = new TreeMap<>();
+    private final TreeMap<Double, Double> rightSideImpulses = new TreeMap<>();
+    private final TreeMap<Double, Double> totalImpulses = new TreeMap<>();
 
     public Container(double L, Set<Particle> particles) {
         this.L = L;
@@ -40,7 +40,22 @@ public class Container {
                 }
             }
         }
-        Double verticalTime = p1.timeCollisionAgainstVerticalWall(width, L);
+
+        Double timeToUpperCorner = p1.timeCollisionAgainstParticle(this.upperCorner);
+        if (timeToUpperCorner != Double.POSITIVE_INFINITY && timeToUpperCorner > 0) {
+            if (newCollision == null || newCollision.getTime() > timeToUpperCorner) {
+                newCollision = new Collision(p1, this.upperCorner, CollisionType.UPPER_CORNER, timeToUpperCorner);
+            }
+        }
+
+        Double timeToLowerCorner = p1.timeCollisionAgainstParticle(this.lowerCorner);
+        if (timeToLowerCorner != Double.POSITIVE_INFINITY && timeToLowerCorner > 0) {
+            if (newCollision == null || newCollision.getTime() > timeToLowerCorner) {
+                newCollision = new Collision(p1, this.lowerCorner, CollisionType.LOWER_CORNER, timeToLowerCorner);
+            }
+        }
+
+        Double verticalTime = p1.timeCollisionAgainstVerticalWall(width, L, leftSideImpulses, totalImpulses, rightSideImpulses);
         if (verticalTime != Double.POSITIVE_INFINITY && verticalTime > 0) {
             if (newCollision == null || newCollision.getTime() > verticalTime){
                 newCollision = new Collision(p1, null, CollisionType.VERTICAL_WALL, verticalTime);
@@ -117,6 +132,18 @@ public class Container {
         particleCollisionTimes = updatedParticleCollisionTimes;
 
         return newCollision.getTime();
+    }
+
+    public double getLeftSidePressure(double finalTime, double initialTime) {
+        return leftSideImpulses.subMap(initialTime, finalTime).values().stream().mapToDouble(Double::doubleValue).sum() / (finalTime - initialTime);
+    }
+
+    public double getRightSidePressure(double finalTime, double initialTime) {
+        return rightSideImpulses.subMap(initialTime, finalTime).values().stream().mapToDouble(Double::doubleValue).sum() / (finalTime - initialTime);
+    }
+
+    public double getTotalPressure(double finalTime, double initialTime) {
+        return totalImpulses.subMap(initialTime, finalTime).values().stream().mapToDouble(Double::doubleValue).sum() / (finalTime - initialTime);
     }
 
     public Set<Particle> getParticles() {

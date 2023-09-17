@@ -11,8 +11,9 @@ public class Main {
     public static int N;
     public static double L;
     private static final Set<Particle> particles = new HashSet<>();
+    private static Set<Limit> limits = new HashSet<>();
 
-    private static final int MAX_TIME = 1000;
+    private static final int MAX_TIME = 60;
 
     private static void generateParticles(FileWriter inputFile) throws IOException {
         double weight = 1.00;
@@ -83,6 +84,20 @@ public class Main {
         L = Double.parseDouble(args[0]);
         N = Integer.parseInt(args[1]);
         generateParticles(inputWriter);
+        for (double i = 0; i < 0.09; i += 0.0005) {
+
+            limits.add(new Limit(i, 0));
+            limits.add(new Limit(i, 0.09));
+            limits.add(new Limit(0, i));
+            limits.add(new Limit(0.09+i, (0.09-L)/2));
+            limits.add(new Limit(0.09+i, (0.09+L)/2));
+            if(i > (0.09+L)/2 || i < (0.09-L)/2){
+                limits.add(new Limit(0.09, i));
+            }
+            else{
+                limits.add(new Limit(0.18, i));
+            }
+        }
 
 
         List<String> data;
@@ -105,14 +120,25 @@ public class Main {
         Container container = new Container(L, particles);
         double timeElapsed = 0.0;
         writeToOutputFile(outputWriter, container.getParticles(), timeElapsed);
-        DataManager dm = new DataManager();
+        String[] outputs = {
+                "./data/output/dynamic/Dynamic_N_" + N + "_L_" + L +"_v" +"1.dump",
+                "./data/output/VaN_" + N + "_L_" + L + "_v" +"1.txt",
+                "./data/output/VaN_" + N + "_L_" + L +"_v" +"1.txt",
+                "./data/output/VaN_" + N + "_L_" + L +"_v" +"1.txt",
+        };
+        DataManager dm =  new DataManager();
+        int stationary = 0;
 
-        for (int i = 0; i < MAX_TIME; i++) {
+        while (timeElapsed < MAX_TIME && stationary < 50) {
             double time = container.executeCollisions(timeElapsed);
             timeElapsed += time;
-            System.out.println(timeElapsed);
+            double leftPressure = container.getLeftSidePressure(timeElapsed, timeElapsed - time);
+            double rightPressure = container.getRightSidePressure(timeElapsed, timeElapsed - time);
+            if (rightPressure != 0 && Math.abs(leftPressure-rightPressure) < 0.0001){
+                stationary++;
+            }
             writeToOutputFile(outputWriter, container.getParticles(), timeElapsed);
-            dm.writeDynamicFile(container.getParticles(),"./files/outputDM.dump", timeElapsed);
+            dm.writeDynamicFile(container.getParticles(), limits,"./files/outputDM.dump", timeElapsed);
         }
         outputWriter.close();
     }

@@ -1,4 +1,5 @@
 import java.util.Objects;
+import java.util.TreeMap;
 
 public class Particle {
 
@@ -137,46 +138,30 @@ public class Particle {
     }
 
     public void collisionAgainstParticle(Particle p2){
-        double x1 = getxPos();
-        double y1 = getyPos();
-        double vx1 = getVx();
-        double vy1 = getVy();
-        double radius1 = getRadius();
 
-        if (p2 == null) {
-            throw new IllegalArgumentException("p2 cannot be null if Collision is of type PARTICLE");
-        }
+        double deltaX = p2.getxPos() - getxPos();
+        double deltaY = p2.getyPos() - getyPos();
+        double deltaVx = p2.getVx() - getVx();
+        double deltaVy = p2.getVy() - getVy();
+        double deltaVR = deltaX * deltaVx + deltaY * deltaVy;
+        double dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        double x2 = p2.getxPos();
-        double y2 = p2.getyPos();
-        double vx2 = p2.getVx();
-        double vy2 = p2.getVy();
-        double radius2 = p2.getRadius();
-
-        double dx = x2 - x1;
-        double dy = y2 - y1;
-        double dvx = vx2 - vx1;
-        double dvy = vy2 - vy1;
-        double dvdr = dx * dvx + dy * dvy;
-        double dist = Math.sqrt(dx * dx + dy * dy);
-
-        double sigma = radius1 + radius2;
-        double tolerance = 1E-6;
+        double sigma = getRadius() + p2.getRadius();
         double J;
 
         if (p2.getWeight() == Double.POSITIVE_INFINITY) {
-            J = (2 * getWeight() * dvdr) / ((getWeight()) * sigma);
+            J = (2 * getWeight() * deltaVR) / ((getWeight()) * sigma);
         } else {
-            J = (2 * getWeight() * p2.getWeight() * dvdr) / ((getWeight() + p2.getWeight()) * sigma);
+            J = (2 * getWeight() * p2.getWeight() * deltaVR) / ((getWeight() + p2.getWeight()) * sigma);
         }
 
-        double Jx = J * dx / dist;
-        double Jy = J * dy / dist;
+        double Jx = J * deltaX / dist;
+        double Jy = J * deltaY / dist;
 
-        double newVx1 = vx1 + Jx / getWeight();
-        double newVy1 = vy1 + Jy / getWeight();
-        double newVx2 = vx2 - Jx / p2.getWeight();
-        double newVy2 = vy2 - Jy / p2.getWeight();
+        double newVx1 = getVx() + Jx / getWeight();
+        double newVy1 = getVy() + Jy / getWeight();
+        double newVx2 = p2.getVx() - Jx / p2.getWeight();
+        double newVy2 = getVy() - Jy / p2.getWeight();
 
         setVx(newVx1);
         setVy(newVy1);
@@ -219,9 +204,19 @@ public class Particle {
         double deltaRV = deltaVx*deltaRx + deltaRy*deltaVy;
 
         double d = (deltaRV * deltaRV) - deltaV2 * (deltaR2 - sigma * sigma);
+        double tolerance = 1E-9;
 
         if (deltaRV >= 0 || d < 0)
             return time;
+
+        if (deltaR2 - sigma * sigma < tolerance){
+            System.out.println("Particles in contact");
+        }
+
+        if (deltaR2 + tolerance < sigma * sigma) {
+            System.out.println("overlapping particles for particles " + this.getId() + " and " + p2.getId());
+            System.out.println("Exception --------------------------------------------");
+        }
 
         time = -1*(deltaRV + Math.sqrt(d))/deltaV2;
 
@@ -257,21 +252,27 @@ public class Particle {
         return time;
     }
 
-    public Double timeCollisionAgainstVerticalWall(double width, double L){
+    public Double timeCollisionAgainstVerticalWall(double width, double L, TreeMap<Double, Double> leftSideImpulses, TreeMap<Double, Double> totalImpulses, TreeMap<Double, Double> rightSideImpulses){
         double time = Double.POSITIVE_INFINITY;
         double x = getxPos();
         double y = getyPos();
         double vx = getVx();
         double vy = getVy();
         double radius = getRadius();
-        double timeToMidWall = (width - x - radius) / vx;
-        double upperMidWallY = y + vy * timeToMidWall;
-        double lowerMidWallY = y + vy * timeToMidWall;
-        if (x < width && (upperMidWallY > (width + L) / 2 || lowerMidWallY < (width - L) / 2)) {
-            if (timeToMidWall > 0) {
-                time = Math.min(time, timeToMidWall);
+        if (vx > 0) {
+            double timeToMidWall = (width - x - radius) / vx;
+            double upperMidWallY = y + vy * timeToMidWall;
+            double lowerMidWallY = y + vy * timeToMidWall;
+            if (x < width && (upperMidWallY > (width + L) / 2 || lowerMidWallY < (width - L) / 2)) {
+                if (timeToMidWall > 0) {
+                    time = Math.min(time, timeToMidWall);
+                    leftSideImpulses.put(time, Math.abs(getVy())/(4*width - L));
+                    totalImpulses.put(time, Math.abs(getVy())/(4*width + 2*width));
+                }
             } else {
                 time = Math.min(time, (2 * width - x - radius) / vx);
+                rightSideImpulses.put(time, Math.abs(getVy())/(2*width + L));
+                totalImpulses.put(time, Math.abs(getVy())/(4*width + 2*width));
             }
         } else if (vx < 0) {
             time = Math.min(time, (radius - x) / vx);
