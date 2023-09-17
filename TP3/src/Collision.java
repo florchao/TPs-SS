@@ -43,7 +43,8 @@ public class Collision implements Comparable<Collision>{
                 return collisionType.equals(((Collision) o).getCollisionType());
             }
             return true;
-        } else return p1.equals(collision.getP2()) && p2.equals(collision.getP1());
+        }
+        else return p1.equals(collision.getP2()) && p2.equals(collision.getP1());
     }
 
     @Override

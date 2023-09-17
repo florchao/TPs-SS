@@ -111,7 +111,6 @@ public class Particle {
 
     public void collisionAgainstHorizontalWall(){
         setVy(-getVy());
-        setVx(-getVx());
     }
 
     public void updatePosition(double time) {
@@ -138,22 +137,51 @@ public class Particle {
     }
 
     public void collisionAgainstParticle(Particle p2){
-        double deltaX = Math.abs(p2.getxPos() - getxPos());
-        double deltaY = Math.abs(p2.getyPos() - getyPos());
-        double deltaVx = p2.getVx() - getVx();
-        double deltaVy = p2.getVy() - getVy();
-        double deltaV_R = deltaX*deltaVx + deltaY*deltaVy;
-        double sigma = getRadius() + p2.getRadius();
-        double J = 2*getWeight()*p2.getWeight()*deltaV_R / ((getWeight() + p2.getWeight())*sigma);
-        double Jx = J*deltaX / sigma;
-        double Jy = J*deltaY / sigma;
+        double x1 = getxPos();
+        double y1 = getyPos();
+        double vx1 = getVx();
+        double vy1 = getVy();
+        double radius1 = getRadius();
 
-        setVx(getVx() + Jx/getWeight());
-        setVy(getVy() + Jy/getWeight());
+        if (p2 == null) {
+            throw new IllegalArgumentException("p2 cannot be null if Collision is of type PARTICLE");
+        }
 
-        p2.setVx(p2.getVx() - Jx/p2.getWeight());
-        p2.setVy(p2.getVy() - Jy/p2.getWeight());
+        double x2 = p2.getxPos();
+        double y2 = p2.getyPos();
+        double vx2 = p2.getVx();
+        double vy2 = p2.getVy();
+        double radius2 = p2.getRadius();
 
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double dvx = vx2 - vx1;
+        double dvy = vy2 - vy1;
+        double dvdr = dx * dvx + dy * dvy;
+        double dist = Math.sqrt(dx * dx + dy * dy);
+
+        double sigma = radius1 + radius2;
+        double tolerance = 1E-6;
+        double J;
+
+        if (p2.getWeight() == Double.POSITIVE_INFINITY) {
+            J = (2 * getWeight() * dvdr) / ((getWeight()) * sigma);
+        } else {
+            J = (2 * getWeight() * p2.getWeight() * dvdr) / ((getWeight() + p2.getWeight()) * sigma);
+        }
+
+        double Jx = J * dx / dist;
+        double Jy = J * dy / dist;
+
+        double newVx1 = vx1 + Jx / getWeight();
+        double newVy1 = vy1 + Jy / getWeight();
+        double newVx2 = vx2 - Jx / p2.getWeight();
+        double newVy2 = vy2 - Jy / p2.getWeight();
+
+        setVx(newVx1);
+        setVy(newVy1);
+        p2.setVx(newVx2);
+        p2.setVy(newVy2);
     }
 
     public boolean isInsideBoundaries(double containerWidth, double L) {
@@ -175,7 +203,7 @@ public class Particle {
         return true;
     }
 
-    public Double timeCollisionAgainstParticle (Particle p2) {
+    public double timeCollisionAgainstParticle (Particle p2) {
         double time = Double.POSITIVE_INFINITY;
 
         double sigma = this.getRadius() + p2.getRadius();
@@ -190,7 +218,7 @@ public class Particle {
         double deltaV2 = deltaVx * deltaVx + deltaVy * deltaVy;
         double deltaRV = deltaVx*deltaRx + deltaRy*deltaVy;
 
-        double d = (deltaRV * deltaRV) - deltaV2 * (deltaR2 - (sigma * sigma));
+        double d = (deltaRV * deltaRV) - deltaV2 * (deltaR2 - sigma * sigma);
 
         if (deltaRV >= 0 || d < 0)
             return time;
@@ -207,7 +235,7 @@ public class Particle {
         double vx = getVx();
         double vy = getVy();
         double radius = getRadius();
-        if (vy > 0){
+        if (vy > 0) {
             double timeToMidUpper = ((width + L) / 2 - y - radius) / vy;
             double midUpperX = x + radius + vx * timeToMidUpper;
             if (timeToMidUpper < 0 || midUpperX < width) {
@@ -216,7 +244,7 @@ public class Particle {
             } else if (timeToMidUpper > 0 && midUpperX > width) {
                 time = Math.min(time, timeToMidUpper);
             }
-        } else if ( vy < 0) {
+        } else if (vy < 0) {
             double timeToMidLower = ((width - L) / 2 - y + radius) / vy;
             double midLowerX = x + radius + vx * timeToMidLower;
             if (timeToMidLower < 0 || midLowerX < width) {
@@ -236,20 +264,18 @@ public class Particle {
         double vx = getVx();
         double vy = getVy();
         double radius = getRadius();
-        if (vx > 0){
-            double timeToMidWall = (width - x - radius) / vx;
-            double upperMidWallY = y + radius + vy * timeToMidWall;
-            double lowerMidWallY = y - radius + vy * timeToMidWall;
-            if (x < width && (upperMidWallY > (width + L) / 2 || lowerMidWallY < (width - L) / 2)) {
-                if (timeToMidWall > 0) {
-                    time = Math.min(time, timeToMidWall);
-                }
+        double timeToMidWall = (width - x - radius) / vx;
+        double upperMidWallY = y + vy * timeToMidWall;
+        double lowerMidWallY = y + vy * timeToMidWall;
+        if (x < width && (upperMidWallY > (width + L) / 2 || lowerMidWallY < (width - L) / 2)) {
+            if (timeToMidWall > 0) {
+                time = Math.min(time, timeToMidWall);
             } else {
                 time = Math.min(time, (2 * width - x - radius) / vx);
             }
-        } else if ( vx < 0) {
+        } else if (vx < 0) {
             time = Math.min(time, (radius - x) / vx);
         }
-        return time;
-    }
+            return time;
+        }
 }

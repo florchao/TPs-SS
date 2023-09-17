@@ -34,7 +34,7 @@ public class Container {
         Collision newCollision = null;
         for (Particle p2 : particles) {
             if (!p1.equals(p2)) {
-                Double time = p1.timeCollisionAgainstParticle(p2);
+                double time = p1.timeCollisionAgainstParticle(p2);
                 if (time != Double.POSITIVE_INFINITY && time > 0) {
                     newCollision = new Collision(p1, p2, CollisionType.PARTICLE, time);
                 }
@@ -103,6 +103,18 @@ public class Container {
         }
         else
             p1.collisionAgainstParticle(p2);
+
+        TreeSet<Collision> updatedParticleCollisionTimes = new TreeSet<>();
+
+        for (Collision aux : particleCollisionTimes) {
+            if (!aux.getP1().equals(aux.getP1()) && (aux.getP2() == null || !aux.getP2().equals(aux.getP1())) &&
+                    !aux.getP1().equals(aux.getP2()) && (aux.getP2() == null || !aux.getP2().equals(aux.getP2()))) {
+                updatedParticleCollisionTimes.add(aux);
+            }
+        }
+
+        // Replace the original particleCollisionTimes with the updated set
+        particleCollisionTimes = updatedParticleCollisionTimes;
 
         return newCollision.getTime();
     }
