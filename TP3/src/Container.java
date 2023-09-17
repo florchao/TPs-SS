@@ -10,6 +10,10 @@ public class Container {
 
     private int particlesB;
 
+    private final Particle upperCorner;
+
+    private final Particle lowerCorner;
+
     private Set<Particle> particles;
 
     private TreeSet<Collision> particleCollisionTimes;
@@ -27,6 +31,9 @@ public class Container {
         this.particlesB = 0;
 
         this.particleCollisionTimes = new TreeSet<> ();
+
+        this.upperCorner = new Particle(particles.size(), width, (L+width)/2, 0, 0, Double.POSITIVE_INFINITY, 0);
+        this.lowerCorner = new Particle(particles.size()+1, width, (width-L)/2, 0, 0, Double.POSITIVE_INFINITY, 0);
     }
 
     //For each particle, adds the first collision thats going to happen
