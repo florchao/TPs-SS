@@ -161,7 +161,7 @@ public class Particle {
         double newVx1 = getVx() + Jx / getWeight();
         double newVy1 = getVy() + Jy / getWeight();
         double newVx2 = p2.getVx() - Jx / p2.getWeight();
-        double newVy2 = getVy() - Jy / p2.getWeight();
+        double newVy2 = p2.getVy() - Jy / p2.getWeight();
 
         setVx(newVx1);
         setVy(newVy1);
@@ -191,13 +191,13 @@ public class Particle {
     public double timeCollisionAgainstParticle (Particle p2) {
         double time = Double.POSITIVE_INFINITY;
 
-        double sigma = this.getRadius() + p2.getRadius();
+        double sigma = getRadius() + p2.getRadius();
 
-        double deltaVx = p2.getVx() - this.getVx();
-        double deltaVy = p2.getVy() - this.getVy();
+        double deltaVx = p2.getVx() - getVx();
+        double deltaVy = p2.getVy() - getVy();
 
-        double deltaRx = p2.getxPos() - this.getxPos();
-        double deltaRy = p2.getyPos() - this.getyPos();
+        double deltaRx = p2.getxPos() - getxPos();
+        double deltaRy = p2.getyPos() - getyPos();
 
         double deltaR2 = deltaRx * deltaRx + deltaRy * deltaRy;
         double deltaV2 = deltaVx * deltaVx + deltaVy * deltaVy;
