@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 N_values = [200]
 L_values = [0.03, 0.05, 0.07, 0.09]
 file_list = []
-color_list = ['b', 'g', 'r', 'c', 'm', 'y']
+color_list = ['pink', 'orange', 'purpule', 'blue', 'green', 'red']
 # Create a dictionary to store data for each combination of N and L
 data = {}
 

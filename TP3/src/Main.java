@@ -34,8 +34,6 @@ public class Main {
         List<Double> pressures = new ArrayList<>();
 
         while (timeElapsed < MAX_TIME && timeElapsed - stationary < 25) {
-            System.out.println("Stationary: " + stationary);
-
             Collision next = container.getCollisions().first();
             moveParticles(timeOfNextCollision - timeElapsed);
 
@@ -50,10 +48,6 @@ public class Main {
 
             double leftPressure = container.getLeftSidePressure(timeOfNextCollision, 0);
             double rightPressure = container.getRightSidePressure(timeOfNextCollision, 0);
-            System.out.println("Time: " + timeElapsed);
-            System.out.println("Left Pressure: " + leftPressure);
-            System.out.println("Right Pressure: " + rightPressure);
-            System.out.println("----------------------------");
             if (rightPressure != 0 && Math.abs(leftPressure - rightPressure) < 0.025) {
                 pressures.add(leftPressure);
             } else if (next.getType() != CollisionType.PARTICLE) {
