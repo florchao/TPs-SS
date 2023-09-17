@@ -10,6 +10,9 @@ public class Container {
 
     private int particlesB;
 
+    private final Particle upperCorner;
+    private final Particle lowerCorner;
+
     private Set<Particle> particles;
 
     private TreeSet<Collision> particleCollisionTimes;
@@ -26,6 +29,9 @@ public class Container {
         this.particlesA = particles.size();
         this.particlesB = 0;
 
+        this.upperCorner = new Particle(particles.size(), width, (L+width)/2, 0, 0, Double.POSITIVE_INFINITY, 0);
+        this.lowerCorner = new Particle(particles.size()+1, width, (width-L)/2, 0, 0, Double.POSITIVE_INFINITY, 0);
+
         this.particleCollisionTimes = new TreeSet<> ();
     }
 
@@ -34,21 +40,21 @@ public class Container {
         Collision newCollision = null;
         for (Particle p2 : particles) {
             if (!p1.equals(p2)) {
-                double time = p1.timeCollisionAgainstParticle(p2);
+                double time = p1.timeCollisionAgainstParticle(p2, CollisionType.PARTICLE);
                 if (time != Double.POSITIVE_INFINITY && time > 0) {
                     newCollision = new Collision(p1, p2, CollisionType.PARTICLE, time);
                 }
             }
         }
 
-        Double timeToUpperCorner = p1.timeCollisionAgainstParticle(this.upperCorner);
+        Double timeToUpperCorner = p1.timeCollisionAgainstParticle(this.upperCorner, CollisionType.UPPER_CORNER);
         if (timeToUpperCorner != Double.POSITIVE_INFINITY && timeToUpperCorner > 0) {
             if (newCollision == null || newCollision.getTime() > timeToUpperCorner) {
                 newCollision = new Collision(p1, this.upperCorner, CollisionType.UPPER_CORNER, timeToUpperCorner);
             }
         }
 
-        Double timeToLowerCorner = p1.timeCollisionAgainstParticle(this.lowerCorner);
+        Double timeToLowerCorner = p1.timeCollisionAgainstParticle(this.lowerCorner, CollisionType.LOWER_CORNER);
         if (timeToLowerCorner != Double.POSITIVE_INFINITY && timeToLowerCorner > 0) {
             if (newCollision == null || newCollision.getTime() > timeToLowerCorner) {
                 newCollision = new Collision(p1, this.lowerCorner, CollisionType.LOWER_CORNER, timeToLowerCorner);
@@ -119,6 +125,7 @@ public class Container {
         else
             p1.collisionAgainstParticle(p2);
 
+        /*
         TreeSet<Collision> updatedParticleCollisionTimes = new TreeSet<>();
 
         for (Collision aux : particleCollisionTimes) {
@@ -130,6 +137,7 @@ public class Container {
 
         // Replace the original particleCollisionTimes with the updated set
         particleCollisionTimes = updatedParticleCollisionTimes;
+         */
 
         return newCollision.getTime();
     }

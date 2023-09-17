@@ -112,6 +112,7 @@ public class Particle {
 
     public void collisionAgainstHorizontalWall(){
         setVy(-getVy());
+        setVx(-getVx());
     }
 
     public void updatePosition(double time) {
@@ -161,7 +162,7 @@ public class Particle {
         double newVx1 = getVx() + Jx / getWeight();
         double newVy1 = getVy() + Jy / getWeight();
         double newVx2 = p2.getVx() - Jx / p2.getWeight();
-        double newVy2 = getVy() - Jy / p2.getWeight();
+        double newVy2 = p2.getVy() - Jy / p2.getWeight();
 
         setVx(newVx1);
         setVy(newVy1);
@@ -188,7 +189,7 @@ public class Particle {
         return true;
     }
 
-    public double timeCollisionAgainstParticle (Particle p2) {
+    public double timeCollisionAgainstParticle (Particle p2, CollisionType type) {
         double time = Double.POSITIVE_INFINITY;
 
         double sigma = this.getRadius() + p2.getRadius();
@@ -204,18 +205,19 @@ public class Particle {
         double deltaRV = deltaVx*deltaRx + deltaRy*deltaVy;
 
         double d = (deltaRV * deltaRV) - deltaV2 * (deltaR2 - sigma * sigma);
+
         double tolerance = 1E-9;
 
         if (deltaRV >= 0 || d < 0)
             return time;
 
         if (deltaR2 - sigma * sigma < tolerance){
-            System.out.println("Particles in contact");
+            //System.out.println("Particles in contact");
         }
 
         if (deltaR2 + tolerance < sigma * sigma) {
-            System.out.println("overlapping particles for particles " + this.getId() + " and " + p2.getId());
-            System.out.println("Exception --------------------------------------------");
+            //System.out.println("overlapping particles for particles " + this.getId() + " and " + p2.getId());
+            //System.out.println("Exception --------------------------------------------");
         }
 
         time = -1*(deltaRV + Math.sqrt(d))/deltaV2;
