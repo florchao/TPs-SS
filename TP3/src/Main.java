@@ -1,12 +1,10 @@
 import java.io.File;
 import java.io.FileWriter;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
+
 public class Main {
-    private static final int MAX_TIME = 400;
-    private static final double width = 400;
+    private static final int MAX_TIME = 200;
+    private static final double width = 0.09;
     private static Container container;
     private static TreeSet<Particle> particles;
     private static int N;
@@ -33,8 +31,10 @@ public class Main {
         double stationary = 0;
         int frame = 0;
         double timeOfNextCollision = container.executeCollisions(timeElapsed);
+        List<Double> pressures = new ArrayList<>();
 
         while (timeElapsed < MAX_TIME && timeElapsed - stationary < 25) {
+            System.out.println("Stationary: " + stationary);
 
             Collision next = container.getCollisions().first();
             moveParticles(timeOfNextCollision - timeElapsed);
@@ -50,17 +50,21 @@ public class Main {
 
             double leftPressure = container.getLeftSidePressure(timeOfNextCollision, 0);
             double rightPressure = container.getRightSidePressure(timeOfNextCollision, 0);
+            System.out.println("Time: " + timeElapsed);
+            System.out.println("Left Pressure: " + leftPressure);
+            System.out.println("Right Pressure: " + rightPressure);
+            System.out.println("----------------------------");
             if (rightPressure != 0 && Math.abs(leftPressure - rightPressure) < 0.025) {
-                // stationary++;
+                pressures.add(leftPressure);
             } else if (next.getType() != CollisionType.PARTICLE) {
                 stationary = timeElapsed;
             }
 
             next.collide(container.getWidth(), container.getL());
             if (frame % 25 == 0) {
-                writeDynamicFile(particles, boundaries, "./files/output/simulation" + N +".dump", timeElapsed);
+                writeDynamicFile(particles, boundaries, "./files/output/simulation" + N + "L" + L +".dump", timeElapsed);
             }
-            writePressureFile(leftPressure, rightPressure, timeElapsed, "./files/output/pressures" + N +".txt");
+            writePressureFile(leftPressure, rightPressure, timeElapsed, "./files/output/pressures" + N + "L" + L+".txt");
 
             container.getCollisions().removeIf(c -> c.getP1().equals(next.getP1()) ||
                     (c.getP2() != null && c.getP2().equals(next.getP1())) ||
@@ -83,8 +87,12 @@ public class Main {
             timeOfNextCollision = container.getCollisions().first().getTime();
             frame++;
         }
-        double pressure = Math.abs(container.getLeftSidePressure(timeElapsed, 0));
-        writeFinalPressure(pressure, "./files/output/finalPressure" + N+".txt");
+        OptionalDouble average = pressures
+                .stream()
+                .mapToDouble(a -> a)
+                .average();
+        double pre = average.isPresent() ? average.getAsDouble() : 0;
+        writeFinalPressure(pre, "./files/output/finalPressure" + N + "L" + L +".txt");
 
     }
 
@@ -170,7 +178,7 @@ public class Main {
             FileWriter writer = new FileWriter(file, true);
             if (file.createNewFile()) {
                 int id = 1;
-                File startingFile = new File("./data/input/dynamic.txt");
+                File startingFile = new File("./files/input.txt");
                 Scanner scanner = new Scanner(startingFile);
                 while (scanner.hasNext()) {
                     String line = scanner.nextLine();
