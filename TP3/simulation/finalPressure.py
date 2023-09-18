@@ -1,51 +1,41 @@
-import os
-import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Define the values of N and L
-N_values = [200]
-L_values = [0.03, 0.05, 0.07, 0.09]
+WIDTH = 0.09
+N = 200
+L = [0.03, 0.05, 0.07, 0.09]
 file_list = []
-color_list = ['pink', 'orange', 'purpule', 'blue', 'green', 'red']
-# Create a dictionary to store data for each combination of N and L
-data = {}
+color_list = ['b', 'g', 'r', 'c', 'm']
 
-
-
-for iteration in range(len(N_values)):
-    file_list = []
-    for i in range(len(L_values)):
-        # format noise[i] to exactly 2 decimals
-        file_list.append(f"../files/output/finalPressure200L{L_values[i]}.txt")
-    # Loop through each file and read data
-    pressure_perL=[]
+file_list = []
+for i in range(len(L)):
+    file_list.append(f"../files/output/finalPressure{N}L{L[i]}.txt")
+pressure_perL=[]
+pressure=[]
+stds=[]
+for idx, file_name in enumerate(file_list):
     pressure=[]
-    stds=[]
-    areas =[]
-    area = 0.09*0.09 + 0.09*L_values[i]
-    for idx, file_name in enumerate(file_list):
-        pressure=[]
-        with open(file_name, "r") as file:
-            # vas.append(0)
-            # _per_error=[]
-            lines = file.readlines()
-            for line in lines:
-                pressure.append( float(line.strip().split()[0]))
-                # va_per_error = (pressure)
-            pressure_perL.append(np.mean(pressure))
-            stds.append(np.std(pressure))
-            areas.append(1/area)
-    # print(N[iteration], L[iteration], len(noise), (vas))
-    plt.scatter(areas, pressure_perL, marker='o', linestyle='-', color=color_list[iteration], label=f'L= {N_values[iteration]} ')
-    plt.errorbar(areas, pressure_perL, yerr=stds, fmt='o', color=color_list[iteration], ecolor=color_list[iteration], capthick=2)
-    pressurre=[]
-    stds=[]
+    with open(file_name, "r") as file:
+        lines = file.readlines()
+        pressure.append( float(lines[0].strip().split()[0]))
+        pressure_perL.append(np.mean(pressure))
+        stds.append(np.std(pressure))
+x=[]
+x.append(0)
+x = [1/(WIDTH*WIDTH + WIDTH*L) for L in L]
+plt.scatter(x, pressure_perL, marker='o', linestyle='-', color='purple', label=f'N= {N} ')
+plt.errorbar(x, pressure_perL, yerr=stds, fmt='o', color='purple', ecolor='purple')
 
-plt.xlabel('Inversa del Área')
-plt.ylabel('Presion')
+t = np.arange(len(x))
+
+slope, _ = np.polyfit(x[0:len(t)], pressure_perL, 1)
+
+y_regresion = np.array(x) *  slope
+plt.plot(x, y_regresion, color='magenta')
+
+
+plt.xlabel('Inversa del área ($\\frac{1}{m^2}$)')
+plt.ylabel('Presión ($\\frac{kg}{m \\cdot s^2}$)')
 plt.legend()
-plt.grid(True)
-plt.savefig('../files/output/finalPressure.png')
-
+plt.savefig('../files/output/regresionPvsA-1.png')
 plt.cla()
