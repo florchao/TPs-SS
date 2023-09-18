@@ -1,5 +1,3 @@
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 public class Container {
     private final double width = 0.09;
@@ -8,15 +6,11 @@ public class Container {
     private TreeSet<Collision> collisions;
     private Particle upperCorner;
     private Particle lowerCorner;
-    private double leftSideI = 0;
-    private double rightSideI = 0;
-    private double totalI = 0;
     private double leftPerimeter;
     private double rightPerimeter;
     private double totalPerimeter;
-    private final TreeMap<Double, Double> leftSideImpulses = new TreeMap<>();
-    private final TreeMap<Double, Double> rightSideImpulses = new TreeMap<>();
-    private final TreeMap<Double, Double> totalImpulses = new TreeMap<>();
+    double leftImpulses=0;
+    double rightImpulses= 0;
 
     public Container(double l, TreeSet<Particle> particles) {
         this.L = l;
@@ -141,21 +135,23 @@ public class Container {
         return new Collision(p, p2, time + currentTime, type);
     }
 
+
     public void addPressure(double v, CollisionType type, double timeOfCollision) {
         if (type == null){
             return;
         }
         switch (type) {
             case LEFT_HORIZONTAL_WALL:
+                leftImpulses += 2*Math.abs(v);
             case LEFT_VERTICAL_WALL:
+                leftImpulses += 2*Math.abs(v);
             case MIDDLE_WALL:
-                leftSideImpulses.put(timeOfCollision, Math.abs(2*v)/leftPerimeter);
-                totalImpulses.put(timeOfCollision, Math.abs(2*v)/totalPerimeter);
+                leftImpulses += 2*Math.abs(v);
                 break;
             case RIGHT_HORIZONTAL_WALL:
+                rightImpulses += 2*Math.abs(v);
             case RIGHT_VERTICAL_WALL:
-                rightSideImpulses.put(timeOfCollision, Math.abs(2*v)/rightPerimeter);
-                totalImpulses.put(timeOfCollision, Math.abs(2*v)/totalPerimeter);
+                rightImpulses += 2*Math.abs(v);
                 break;
             case UPPER_MIDDLE_CORNER:
             case LOWER_MIDDLE_CORNER:
@@ -163,19 +159,6 @@ public class Container {
             default:
                 throw new RuntimeException("Cannot compute pressure for collision of type " + type);
         }
-        totalI += v / totalPerimeter;
-    }
-
-    public double getLeftSidePressure(double finalTime, double initialTime) {
-        return leftSideImpulses.subMap(initialTime, finalTime).values().stream().mapToDouble(Double::doubleValue).sum() / (finalTime - initialTime);
-    }
-
-    public double getRightSidePressure(double finalTime, double initialTime) {
-        return rightSideImpulses.subMap(initialTime, finalTime).values().stream().mapToDouble(Double::doubleValue).sum() / (finalTime - initialTime);
-    }
-
-    public double getTotalPressure(double finalTime, double initialTime) {
-        return totalImpulses.subMap(initialTime, finalTime).values().stream().mapToDouble(Double::doubleValue).sum() / (finalTime - initialTime);
     }
 
     public double getWidth() {
