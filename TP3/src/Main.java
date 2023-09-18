@@ -3,7 +3,7 @@ import java.io.FileWriter;
 import java.util.*;
 
 public class Main {
-    private static final int MAX_TIME = 200;
+    private static final int MAX_TIME = 400;
     private static final double width = 0.09;
     private static Container container;
     private static TreeSet<Particle> particles;
@@ -28,37 +28,46 @@ public class Main {
         setBoundaries();
 
         double timeElapsed = 0.0;
-        double stationary = 0;
         int frame = 0;
         double timeOfNextCollision = container.executeCollisions(timeElapsed);
         List<Double> pressures = new ArrayList<>();
+        double timeOfCurrentPressure = 0;
+        double totalPressure = 0;
+        double stationaryTime =0;
 
-        while (timeElapsed < MAX_TIME && timeElapsed - stationary < 25) {
+        while (timeElapsed < MAX_TIME ) {
             Collision next = container.getCollisions().first();
             moveParticles(timeOfNextCollision - timeElapsed);
 
             if (next.getType() != CollisionType.PARTICLE) {
                 double collisionV;
-                if (next.getType() == CollisionType.LEFT_HORIZONTAL_WALL || next.getType() == CollisionType.RIGHT_HORIZONTAL_WALL)
+                if (next.getType() == CollisionType.LEFT_HORIZONTAL_WALL || next.getType() == CollisionType.RIGHT_HORIZONTAL_WALL || next.getType() == CollisionType.MIDDLE_WALL)
                     collisionV = next.getP1().getVy();
                 else
                     collisionV = next.getP1().getVx();
                 container.addPressure(collisionV, next.getType(), timeOfNextCollision);
             }
 
-            double leftPressure = container.getLeftSidePressure(timeOfNextCollision, 0);
-            double rightPressure = container.getRightSidePressure(timeOfNextCollision, 0);
-            if (rightPressure != 0 && Math.abs(leftPressure - rightPressure) < 0.025) {
-                pressures.add(leftPressure);
-            } else if (next.getType() != CollisionType.PARTICLE) {
-                stationary = timeElapsed;
+            timeOfCurrentPressure += Math.abs(timeElapsed - timeOfNextCollision);
+            if (timeOfCurrentPressure > 2){
+                double leftPressure = container.leftImpulses / (timeOfCurrentPressure * (4*container.getWidth() - container.getL()));
+                double rightPressure = container.rightImpulses / (timeOfCurrentPressure * (2*container.getWidth() + container.getL()));
+                writePressureFile(leftPressure, rightPressure, timeElapsed, "./files/output/pressures" + N + "L" + L+".txt");
+                if (timeElapsed > 200) {
+                    if (timeElapsed < 220) {
+                        stationaryTime = timeElapsed;
+                    }
+                    totalPressure +=leftPressure;
+                }
+                container.leftImpulses =0;
+                container.rightImpulses =0;
+                timeOfCurrentPressure = 0;
             }
 
             next.collide(container.getWidth(), container.getL());
             if (frame % 25 == 0) {
                 writeDynamicFile(particles, boundaries, "./files/output/simulation" + N + "L" + L +".dump", timeElapsed);
             }
-            writePressureFile(leftPressure, rightPressure, timeElapsed, "./files/output/pressures" + N + "L" + L+".txt");
 
             container.getCollisions().removeIf(c -> c.getP1().equals(next.getP1()) ||
                     (c.getP2() != null && c.getP2().equals(next.getP1())) ||
@@ -81,12 +90,9 @@ public class Main {
             timeOfNextCollision = container.getCollisions().first().getTime();
             frame++;
         }
-        OptionalDouble average = pressures
-                .stream()
-                .mapToDouble(a -> a)
-                .average();
-        double pre = average.isPresent() ? average.getAsDouble() : 0;
-        writeFinalPressure(pre, "./files/output/finalPressure" + N + "L" + L +".txt");
+        double pre = totalPressure / (timeElapsed - stationaryTime);
+        writeFinalPressure(pre, stationaryTime, "./files/output/finalPressure" + N + "L" + L +".txt");
+        System.out.println("Time Elapsed" + timeElapsed);
 
     }
 
@@ -153,12 +159,13 @@ public class Main {
         }
     }
 
-    public static void writeFinalPressure(double pressure, String filePath){
+    public static void writeFinalPressure(double pressure, double stationary,  String filePath){
         try {
             File file = new File(filePath);
             FileWriter writer = new FileWriter(file, true);
             StringBuilder data = new StringBuilder();
             data.append(pressure + "\n");
+            data.append(stationary + "\n");
             writer.write(data.toString());
             writer.close();
         }catch (Exception e) {
