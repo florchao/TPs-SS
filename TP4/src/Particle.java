@@ -7,6 +7,7 @@ public class Particle {
     private double m;
     private double vx;
     private double vy;
+    private double u;
 
     public Particle(int x,double y, double vx, double vy, double m) {
         this.x = x;
@@ -14,6 +15,15 @@ public class Particle {
         this.m = m;
         this.vx = vx;
         this.vy = vy;
+    }
+
+    public Particle(double x, double y, double m, double vx, double vy, double u) {
+        this.x = x;
+        this.y = y;
+        this.m = m;
+        this.vx = vx;
+        this.vy = vy;
+        this.u = u;
     }
 
     public double getX() {
@@ -54,6 +64,14 @@ public class Particle {
 
     public void setVy(double vy) {
         this.vy = vy;
+    }
+
+    public double getU() {
+        return u;
+    }
+
+    public void setU(double u) {
+        this.u = u;
     }
 
     @Override
