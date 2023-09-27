@@ -21,13 +21,13 @@ def draw(deltas, errorsV, errorsG, errorsB):
     plt.yscale("log")
     plt.xscale("log")
     plt.legend()
-    plt.ylabel("Error cuadrático medio (m^2)")
-    plt.xlabel("Deltas (s)")
-    plt.rcParams.update({'font.size': 22})
+    plt.ylabel(r"Error cuadrático medio ($m^2$)")
+    plt.xlabel(r'$\Delta$t (s)')
+    plt.rcParams.update({'font.size': 24})
     plt.show()
 
 
-def parse_parameters(file):
+def parseParams(file):
     with open(file) as statesFile:
         statesLines = statesFile.readlines()
 
@@ -56,20 +56,18 @@ if __name__ == '__main__':
     errorsG = []
     errorsB = []
 
-    directory = "../output/"
-
     num_files = 0
 
-    for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
+    for filename in os.listdir("../output/"):
+        file_path = os.path.join("../output/", filename)
         if os.path.isfile(file_path):
             num_files += 1
             if file_path.__contains__('Beeman'):
-                errorsB.append(parse_parameters(file_path))
+                errorsB.append(parseParams(file_path))
             elif file_path.__contains__('Gear'):
-                errorsG.append(parse_parameters(file_path))
+                errorsG.append(parseParams(file_path))
             else:
-                errorsV.append(parse_parameters(file_path))
+                errorsV.append(parseParams(file_path))
 
     eV = np.sort(errorsV)
     eG = np.sort(errorsG)

@@ -1,4 +1,3 @@
-import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,27 +11,20 @@ def calculate(t):
     return A * (np.exp(-(gamma / (2 * m)) * t)) * (np.cos(np.power((k / m) - (gamma * gamma / (4 * (m * m))), 0.5) * t))
 
 
-def drawAll(verlet, gear, beeman):
-    positionsVerlet = np.array(verlet[1])
-    timesVerlet = np.array(verlet[2])
-    positionsBeeman = np.array(beeman[1])
-    timesBeeman = np.array(beeman[2])
-    positionsGear = np.array(gear[1])
-    timesGear = np.array(gear[2])
-    real_positions = np.array(verlet[0])
+def draw(rV, positionV, timeV, rG, positionG, timeG, rB, positionB, timeB):
 
-    plt.plot(timesVerlet, positionsVerlet, color = "pink")
-    plt.plot(timesBeeman, positionsBeeman, color = "purple")
-    plt.plot(timesGear, positionsGear, color = "orange")
-    plt.plot(timesVerlet, real_positions, color = "green")
+    plt.plot(timeV, positionV, color = "pink")
+    plt.plot(timeB, positionB, color = "purple", linestyle='dashed')
+    plt.plot(timeG, positionG, color = "orange")
+    plt.plot(timeV, rV, color = "green", linestyle='dashdot')
     plt.xlabel("Tiempo (s)")
-    plt.ylabel("Posicion (m)")
-    plt.legend(["Verlet", "Gear", "Beeman", "Analitico"])
-    plt.rcParams.update({'font.size': 22})
+    plt.ylabel("Posición (m)")
+    plt.legend(["Verlet", "Beeman", "Gear", "Analítico"])
+    plt.rcParams.update({'font.size': 24})
     plt.show()
 
 
-def parseParameters(file):
+def parseParams(file):
     with open(file) as statesFile:
         statesLines = statesFile.readlines()
 
@@ -55,10 +47,10 @@ def parseParameters(file):
 
 
 if __name__ == '__main__':
-    r, position, time, errorV = parseParameters("../output/Verlet_1.txt")
-    r2, position2, time2, errorG = parseParameters("../output/Gear_1.txt")
-    r3, position3, time3, errorB = parseParameters("../output/Beeman_1.txt")
-    drawAll([r, position, time], [r2, position2, time2], [r3, position3, time3])
+    rV, positionV, timeV, errorV = parseParams("../output/Verlet_1.txt")
+    rG, positionG, timeG, errorG = parseParams("../output/Gear_1.txt")
+    rB, positionB, timeB, errorB = parseParams("../output/Beeman_1.txt")
+    draw(rV, positionV, timeV, rG, positionG, timeG, rB, positionB, timeB)
     print("Error cuadratico Verlet: ", errorV)
     print("Error cuadratico Gear: ", errorG)
     print("Error cuadratico Beeman: ", errorB)
