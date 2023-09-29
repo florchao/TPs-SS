@@ -18,10 +18,10 @@ def get_particle_data(frame_file):
             if len(line_info) > 1:
                 frame_lines.append(line_info)
             elif len(line_info) == 1:
-                df = pd.DataFrame(np.array(frame_lines), columns=["x", "y", "vx", "vy", "radius", "mass"])
+                df = pd.DataFrame(np.array(frame_lines), columns=["x", "y", "vx", "vy", "radius", "mass", "angle"])
                 frames.append(df)
                 frame_lines = []
-        df = pd.DataFrame(np.array(frame_lines), columns=["x", "y", "vx", "vy", "radius", "mass"])
+        df = pd.DataFrame(np.array(frame_lines), columns=["x", "y", "vx", "vy", "radius", "mass", "angle"])
         frames.append(df)
     return frames
 
