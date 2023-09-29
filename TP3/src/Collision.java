@@ -1,127 +1,155 @@
-import java.util.Objects;
+public class Collision implements Comparable<Collision> {
+    private final Particle p1;
+    private final Particle p2;
+    private final double time;
+    private final CollisionType type;
 
-public class Collision {
-
-    private Particle p1;
-    private Particle p2;
-
-
-    private boolean isHorizontalWall;
-
-    private boolean isVerticalWall;
-
-    public Collision(Particle p1, Particle p2) {
+    public Collision(Particle p1, Particle p2, double time, CollisionType type) {
         this.p1 = p1;
         this.p2 = p2;
+        this.time = time;
+        this.type = type;
     }
 
-    public Collision(Particle p1, boolean isHorizontalWall, boolean isVerticalWall) {
+    public Collision(Particle p1, double time, CollisionType type) {
         this.p1 = p1;
-        if (isHorizontalWall == isVerticalWall)
-            throw new IllegalArgumentException("isHorizontalWall cannot be equal to isVerticalWall");
-        this.isHorizontalWall = isHorizontalWall;
-        this.isVerticalWall = isVerticalWall;
+        this.p2 = null;
+        this.time = time;
+        this.type = type;
     }
 
-    public Double timeCollisionAgainstHorizontalWall(double width, double L){
-        double time = Double.POSITIVE_INFINITY;
-        if (p1.getVy() > 0){
-            if (p1.getxPos() < width)
-                time = (width - p1.getRadius() - p1.getyPos())/ p1.getVy();
-            else
-                time = ((width + L) - p1.getRadius() - p1.getyPos())/ p1.getVy();
-        } else if ( p1.getVy() < 0) {
-            if (p1.getxPos() < width)
-                time = (p1.getRadius() - p1.getyPos())/p1.getVy();
-            else
-                time = ((width - L) + p1.getRadius() - p1.getyPos())/p1.getVy();
+    public void collide(double width, double L) {
+        if (type == null){
+            System.out.println(p1.getId());
+            System.out.println(time);
         }
-        System.out.println("Horizontal time: " + time);
-        return time;
-    }
+        switch (type) {
+            case MIDDLE_WALL:
+                p1.setVx(-p1.getVx());
+                break;
+            case RIGHT_VERTICAL_WALL:
+                p1.setVx(-p1.getVx());
+                break;
+            case LEFT_VERTICAL_WALL:
+                p1.setVx(-p1.getVx());
+                break;
+            case LEFT_HORIZONTAL_WALL:
+            case RIGHT_HORIZONTAL_WALL:
+                p1.setVy(-p1.getVy());
+                break;
+            case UPPER_MIDDLE_CORNER:
 
-    public Double timeCollisionAgainstVerticalWall(double width, double L){
-        double time = Double.POSITIVE_INFINITY;
-        if (p1.getVx() > 0){
-            if (p1.getxPos() > width)
-                time = ((width+L) - p1.getRadius() - p1.getxPos())/ p1.getVx();
-            else{
-                double auxTime = (width - p1.getRadius() - p1.getxPos())/ p1.getVx();
-                double middleY = p1.getyPos() + p1.getVy() * auxTime;
-                if (middleY + p1.getRadius() < (L + width) / 2 || middleY - p1.getRadius() > (L - width) / 2) {
-                    time = ((width+L) - p1.getRadius()-p1.getxPos())/ p1.getVx();
+                if (p1.getXpos() > width)
+                    p1.setVy(-p1.getVy());
+                else {
+                    if (! (p1.getYpos() > (width+L)/2))
+                        p1.setVy(-p1.getVy());
+                    p1.setVx(-p1.getVx());
                 }
-            }
-        } else if ( p1.getVx() < 0) {
-            time = (p1.getRadius() - p1.getxPos())/p1.getVx();
+                break;
+
+            case LOWER_MIDDLE_CORNER:
+
+                if (p1.getXpos() > width)
+                    p1.setVy(-p1.getVy());
+                else {
+                    if (! (p1.getYpos() < (width-L)/2))
+                        p1.setVy(-p1.getVy());
+                    p1.setVx(-p1.getVx());
+                }
+                break;
+
+            case PARTICLE:
+                double x1 = p1.getXpos();
+                double y1 = p1.getYpos();
+                double vx1 = p1.getVx();
+                double vy1 = p1.getVy();
+                double radius1 = p1.getRadius();
+
+                if (p2 == null) {
+                    throw new IllegalArgumentException("p2 cannot be null if Collision is of type PARTICLE");
+                }
+
+                double x2 = p2.getXpos();
+                double y2 = p2.getYpos();
+                double vx2 = p2.getVx();
+                double vy2 = p2.getVy();
+                double radius2 = p2.getRadius();
+
+                double dx = x2 - x1;
+                double dy = y2 - y1;
+                double dvx = vx2 - vx1;
+                double dvy = vy2 - vy1;
+                double dvdr = dx * dvx + dy * dvy;
+                double dist = Math.sqrt(dx * dx + dy * dy);
+
+                double sigma = radius1 + radius2;
+                double tolerance = 1E-6;
+                double J;
+
+                if (p2.getWeight() == Double.POSITIVE_INFINITY) {
+                    J = (2 * p1.getWeight() * dvdr) / ((p1.getWeight()) * sigma);
+                } else {
+                    J = (2 * p1.getWeight() * p2.getWeight() * dvdr) / ((p1.getWeight() + p2.getWeight()) * sigma);
+                }
+
+                double Jx = J * dx / dist;
+                double Jy = J * dy / dist;
+                double newVx1 = vx1 + Jx / p1.getWeight();
+                double newVy1 = vy1 + Jy / p1.getWeight();
+                double newVx2 = vx2 - Jx / p2.getWeight();
+                double newVy2 = vy2 - Jy / p2.getWeight();
+                p1.setVelocity(newVx1, newVy1);
+                p2.setVelocity(newVx2, newVy2);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid CollisionType");
+
         }
-        System.out.println("Vertical time: " + time);
-        return time;
-    }
-
-    public Double timeCollisionAgainstParticle () {
-        Double time = Double.POSITIVE_INFINITY;
-
-        double sigma = p1.getRadius() + p2.getRadius();
-
-        double deltaVx = p2.getVx() - p1.getVx();
-        double deltaVy = p2.getVy() - p1.getVy();
-
-        double deltaRx = p2.getxPos() - p1.getxPos();
-        double deltaRy = p2.getyPos() - p1.getyPos();
-
-        double deltaR2 = deltaRx * deltaRx + deltaRy * deltaRy;
-        double deltaV2 = deltaVx * deltaVx + deltaVy * deltaVy;
-        double deltaRV = deltaVx*deltaRx + deltaRy*deltaVy;
-
-        double d = (deltaRV * deltaRV) - deltaV2 * (deltaR2 - (sigma * sigma));
-
-        if (deltaRV >= 0 || d < 0)
-            return time;
-
-        time = -1*(deltaRV + Math.sqrt(d))/deltaV2;
-
-        return time;
     }
 
     public Particle getP1() {
-        return p1;
+        return this.p1;
     }
 
     public Particle getP2() {
-        return p2;
+        return this.p2;
     }
 
-    public boolean isHorizontalWall() {
-        return isHorizontalWall;
+    public double getTime() {
+        return this.time;
     }
 
-    public boolean isVerticalWall() {
-        return isVerticalWall;
+    public CollisionType getType() { return this.type; }
+
+    @Override
+    public String toString() {
+        return "Collision{" +
+                "p1=" + p1 +
+                ", p2=" + (p2==null? "wall":p2) +
+                ", time=" + time +
+                '}';
     }
 
+    @Override
+    public int compareTo(Collision o) {
+        return Double.compare(this.time, o.time);
+    }
+
+    // Override equals method so that a collision is equal to another if they're both wall collisions involving the same particle or they're both ParticlCollisions involving the same two particles in any order
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Collision collision = (Collision) o;
-        if (p1.equals(collision.getP1()) && p2.equals(collision.getP2())) {
-            if (p2 == null) {
-                return (isHorizontalWall && collision.isHorizontalWall()) || (isVerticalWall && collision.isVerticalWall());
-            }
+        if (this == o)
             return true;
-        } else return p1.equals(collision.getP2()) && p2.equals(collision.getP1());
-    }
-
-    @Override
-    public int hashCode() {
-        if (p2 == null) {
-            return Objects.hash(p1.getId());
+        if (!(o instanceof Collision))
+            return false;
+        Collision collision = (Collision) o;
+        if (type != collision.type)
+            return false;
+        if (type != CollisionType.PARTICLE) {
+            return (p1.equals(collision.p1));
+        } else {
+            return (p1.equals(collision.p1) && (p2 != null && p2.equals(collision.p2))) || (p1.equals(collision.p2) && (p2 != null && p2.equals(collision.p1)));
         }
-        if (p1.getId() < p2.getId()) {
-            return Objects.hash(p1.getId(), p2.getId());
-        }
-        return Objects.hash(p2.getId(), p1.getId());
     }
-
 }
