@@ -1,99 +1,105 @@
 import java.util.Objects;
 
-public class Particle {
-
-    private double v;
-    private int id;
+public class Particle implements Comparable<Particle>{
+    private static int counter = 1;
+    private final int id;
+    private final double weight;
+    private final double radius;
     private double vx;
     private double vy;
-    private String collision; // ?
-    private boolean isBorder; // ?
-    private double weight;
-    private double xPos;
-    private double yPos;
-    private double radius;
+    private double rx;
+    private double ry;
 
-    public Particle(int id, double xPos, double yPos, double vx, double vy, double weight, double radius) {
-        this.id = id;
-        this.vx = vx;
-        this.vy = vy;
-        this.weight = weight;
-        this.xPos = xPos;
-        this.yPos = yPos;
+    public Particle(double radius, double vx, double vy, double rx, double ry, double weight) {
         this.radius = radius;
-        this.v = 0.09;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(double weight) {
+        this.id = counter;
+        this.vx = vx;
+        this.vy= vy;
+        this.rx = rx;
+        this.ry = ry;
         this.weight = weight;
+        counter++;
     }
 
-    public double getxPos() {
-        return xPos;
-    }
+    public double timeToCollision(Particle p2) {
+        double deltaY = p2.getYpos() - getYpos();
+        double deltaX = p2.getXpos() - getXpos();
 
-    public void setxPos(double xPos) {
-        this.xPos = xPos;
-    }
+        double deltaVy = p2.getVy() - getVy();
+        double deltaVx = p2.getVx() - getVx();
 
-    public double getyPos() {
-        return yPos;
-    }
+        double deltaVR = deltaX*deltaVx + deltaY*deltaVy;
+        double deltaV2 = deltaVx*deltaVx + deltaVy*deltaVy;
+        double deltaR2 = deltaX*deltaX + deltaY*deltaY;
 
-    public void setyPos(double yPos) {
-        this.yPos = yPos;
+        double sigma = getRadius() + p2.getRadius();
+
+        double d = (deltaVR * deltaVR) - deltaV2 * (deltaR2 - sigma * sigma);
+
+        if (deltaVR >= 0 || d < 0)
+            return -1;
+
+        double tolerance = 1E-9;
+
+        if (deltaR2 + tolerance < sigma * sigma) {
+            throw new RuntimeException("overlapping particles: " + this.getId() + " and " + p2.getId());
+        }
+
+        return -(deltaVR + Math.sqrt(d)) / deltaV2;
     }
 
     public double getRadius() {
         return radius;
     }
 
-    public void setRadius(double radius) {
-        this.radius = radius;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public double getVx() {
+    public double getVx(){
         return vx;
+    }
+
+    public double getVy(){
+        return vy;
+    }
+
+    public void setVelocity(double vx, double vy) {
+        setVx(vx);
+        setVy(vy);
     }
 
     public void setVx(double vx) {
         this.vx = vx;
     }
 
-    public double getVy() {
-        return vy;
-    }
-
     public void setVy(double vy) {
         this.vy = vy;
     }
 
-    public String getCollision() {
-        return collision;
+
+    public double getXpos() {
+        return rx;
     }
 
-    public void setCollision(String collision) {
-        this.collision = collision;
+
+    public double getYpos() {
+        return ry;
     }
 
-    public boolean isBorder() {
-        return isBorder;
+
+    public void updatePosition(double time) {
+        this.rx = this.rx + getVx()*time;
+        this.ry = this.ry + getVy()*time;
     }
 
-    public void setBorder(boolean border) {
-        isBorder = border;
+    public int getId() {
+        return id;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    @Override
+    public int compareTo(Particle p2) {
+        return this.id - p2.id;
     }
 
     @Override
@@ -101,7 +107,7 @@ public class Particle {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Particle particle = (Particle) o;
-        return id == particle.getId();
+        return id == particle.id;
     }
 
     @Override
@@ -109,58 +115,12 @@ public class Particle {
         return Objects.hash(id);
     }
 
-    public void collisionAgainstHorizontalWall(Double time){
-        setVy(-getVy());
-        updatePosition(time);
+    @Override
+    public String toString(){
+        return "Particle " + this.id;
     }
 
-    public void updatePosition(double time) {
-        setxPos(getxPos()+time*getVx());
-        setyPos(getyPos()+time*getVy());
-    }
-
-    public int collisionAgainstVerticalWall(Double time, double L, double width) {
-        //returns false if it passes through wall, true if it collides
-        double newxpos = getxPos()+time*getVx();
-        double lowerOpening = (width-L)/2;
-        double upperOpening = width - ((width-L)/2);
-        //passes through wall from A to B
-        if (getxPos() <= L && newxpos > L && getyPos() < upperOpening && getyPos() > lowerOpening){
-            updatePosition(time);
-            return 1;
-        }
-        //passes through wall from B to A
-        if (getxPos() >= L && newxpos < L && getyPos() < upperOpening && getyPos() > lowerOpening){
-            updatePosition(time);
-            return 2;
-        }
-        setVx(-getVx());
-        updatePosition(time);
-        return 0;
-    }
-
-    public void collisionAgainstParticle(Particle p2, Double time){
-        double deltaX = Math.abs(p2.getxPos() - getxPos());
-        double deltaY = Math.abs(p2.getyPos() - getyPos());
-        double deltaVx = p2.getVx() - getVx();
-        double deltaVy = p2.getVy() - getVy();
-        double deltaV_R = deltaX*deltaVx + deltaY*deltaVy;
-        double sigma = getRadius() + p2.getRadius();
-        double J = 2*getWeight()*p2.getWeight()*deltaV_R / ((getWeight() + p2.getWeight())*sigma);
-        double Jx = J*deltaX / sigma;
-        double Jy = J*deltaY / sigma;
-
-        setVx(getVx() + Jx/getWeight());
-        setVy(getVy() + Jy/getWeight());
-
-        setxPos(getxPos()+time*getVx());
-        setyPos(getyPos()+time*getVy());
-
-        p2.setVx(p2.getVx() - Jx/p2.getWeight());
-        p2.setVy(p2.getVy() - Jy/p2.getWeight());
-
-        p2.setxPos(p2.getxPos()+time*p2.getVx());
-        p2.setyPos(p2.getyPos()+time*p2.getVy());
-
+    public static void resetId() {
+        counter = 1;
     }
 }
