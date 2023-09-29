@@ -8,7 +8,6 @@ def get_particle_data(frame_file):
     frames = []
     with open(frame_file, "r") as frame:
         next(frame)
-        next(frame)
         frame_lines = []
         for line in frame:
             ll = line.split()

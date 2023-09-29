@@ -21,32 +21,63 @@ public class FileGenerator {
 
         List<Particle> particles = new ArrayList<>();
 
-        for (int j = 0; j < n; j++) {
-            boolean overlapping = true;
-            double x = 0;
-            double y = 0;
-            double angle = 0;
-            Random random = new Random();
-            while (overlapping) {
-                overlapping = false;
-                angle = random.nextDouble() * 2 * Math.PI;
-                x = circleR * Math.cos(angle);
-                y = circleR * Math.sin(angle);
+        if (n == 25) {
+            for (int j = 0; j < n; j++) {
+                boolean overlapping = true;
+                double x = 0;
+                double y = 0;
+                double angle = 0;
+                Random random = new Random();
+                while (overlapping) {
+                    overlapping = false;
+                    angle = 2.0 * Math.PI * j / n;
+                    x = circleR * Math.cos(angle);
+                    y = circleR * Math.sin(angle);
 
-                for (Particle particle : particles) {
-                    double distance = Math.sqrt(Math.pow(x - particle.getX(), 2) + Math.pow(y - particle.getY(), 2));
-                    if (distance < 2 * radius) {
-                        overlapping = true;
-                        break;
+                    for (Particle particle : particles) {
+                        double distance = Math.sqrt(Math.pow(x - particle.getX(), 2) + Math.pow(y - particle.getY(), 2));
+                        if (distance < 2 * radius) {
+                            overlapping = true;
+                            break;
+                        }
                     }
                 }
-            }
-            angle = random.nextDouble() * 2 * Math.PI;
-            double vx = v * Math.cos(angle);
-            double vy = v * Math.sin(angle);
-            staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, radius, mass, angle);
+                angle = random.nextDouble() * 2 * Math.PI;
+                double vx = v * Math.cos(angle);
+                double vy = v * Math.sin(angle);
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, radius, mass, angle);
 
-            particles.add(new Particle(x, y, vx, vy, radius, mass, angle));
+                particles.add(new Particle(x, y, vx, vy, radius, mass, angle));
+            }
+        } else {
+
+            for (int j = 0; j < n; j++) {
+                boolean overlapping = true;
+                double x = 0;
+                double y = 0;
+                double angle = 0;
+                Random random = new Random();
+                while (overlapping) {
+                    overlapping = false;
+                    angle = random.nextDouble() * 2 * Math.PI;
+                    x = circleR * Math.cos(angle);
+                    y = circleR * Math.sin(angle);
+
+                    for (Particle particle : particles) {
+                        double distance = Math.sqrt(Math.pow(x - particle.getX(), 2) + Math.pow(y - particle.getY(), 2));
+                        if (distance < 2 * radius) {
+                            overlapping = true;
+                            break;
+                        }
+                    }
+                }
+                angle = random.nextDouble() * 2 * Math.PI;
+                double vx = v * Math.cos(angle);
+                double vy = v * Math.sin(angle);
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, radius, mass, angle);
+
+                particles.add(new Particle(x, y, vx, vy, radius, mass, angle));
+            }
         }
 
         staticWriter.close();
