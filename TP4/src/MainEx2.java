@@ -1,5 +1,6 @@
 package src;
 
+import java.io.IOException;
 import java.util.List;
 
 public class MainEx2 {
@@ -25,6 +26,19 @@ public class MainEx2 {
             }
         }
         return (getForce(p1) + sumForces)/p1.getM();
+    }
+
+    public static void main(String[] args) throws IOException {
+        int n = Integer.parseInt(args[0]);
+        double mass = 25;
+        double particleR = 2.25;
+        double circleR =21.49;
+
+        FileGenerator writeFiles = new FileGenerator();
+        writeFiles.generateStaticFile("./input/inputFile.txt", particleR, n, mass, 0.01, circleR);
+
+        List<Particle> particles = ParticleGenerator.generateParticles("./input/inputFile.txt");
+
     }
 
 }
