@@ -15,6 +15,7 @@ public class ParticleGenerator {
             String line;
 
             reader.readLine();
+            int id =0;
 
             while ((line = reader.readLine()) != null) {
                 String[] input = line.split("\t");
@@ -24,7 +25,8 @@ public class ParticleGenerator {
                 }
 
                 double u = random.nextDouble(9, 12);
-                particles.add(new Particle(values[0], values[1], values[2], values[3], u,values[4], values[5], values[6]));
+                particles.add(new Particle(id, values[0], values[1], values[2], values[3], u,values[4], values[4], values[6]));
+                id++;
             }
 
         } catch (IOException e) {

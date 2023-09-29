@@ -8,6 +8,7 @@ def get_particle_data(frame_file):
     frames = []
     with open(frame_file, "r") as frame:
         next(frame)
+        next(frame)
         frame_lines = []
         for line in frame:
             ll = line.split()
@@ -17,26 +18,27 @@ def get_particle_data(frame_file):
             if len(line_info) > 1:
                 frame_lines.append(line_info)
             elif len(line_info) == 1:
-                df = pd.DataFrame(np.array(frame_lines), columns=["x", "y", "vx", "vy", "radius", "mass", "angle"])
+                df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "y", "w", "radius", "mass"])
                 frames.append(df)
                 frame_lines = []
-        df = pd.DataFrame(np.array(frame_lines), columns=["x", "y", "vx", "vy", "radius", "mass", "angle"])
+        df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "y", "w", "radius", "mass"])
         frames.append(df)
     return frames
 
 
 def get_particles(data_frame):
     particles = Particles()
+    particles.create_property('Particle Identifier', data=data_frame.id)
     particles.create_property('Position', data=np.array((data_frame.x, data_frame.y, np.zeros([len(data_frame.x),]))).T)
     particles.create_property('Mass', data=data_frame.mass)
     particles.create_property('Radius', data=data_frame.radius)
-    particles.create_property('Velocity', data=np.array((data_frame.vx, data_frame.vy, np.zeros([len(data_frame.x,)]))).T)
+    particles.create_property('Velocity', data=np.array((data_frame.w, np.zeros([len(data_frame.x,)]), np.zeros([len(data_frame.x,)]))).T)
 
     return particles
 
 
 if __name__ == '__main__':
-    data_frame = get_particle_data("../input/inputFile.txt")
+    data_frame = get_particle_data("../input/positions.txt")
     pipeline = Pipeline(source=StaticSource(data=DataCollection()))
 
     def simulation_cell(frame, data):

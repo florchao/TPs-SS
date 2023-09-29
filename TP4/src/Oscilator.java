@@ -17,7 +17,7 @@ public class Oscilator {
     public static double tf = 5;
     public static void main(String[] args) {
 
-        Particle particle = new Particle(1,0,-(100.0 / (2*m)),0,m);
+        ParticleOscilator particle = new ParticleOscilator(1,0,-(100.0 / (2*m)),0,m);
 
         double dt = Double.parseDouble(args[0]);
 
@@ -44,14 +44,14 @@ public class Oscilator {
             System.out.println("An error occurred.");
         }
     }
-    private static void addCurrentStatus(Particle particle, double t, List<ArrayList<Double>> status){
+    private static void addCurrentStatus(ParticleOscilator particle, double t, List<ArrayList<Double>> status){
         ArrayList<Double> currentStatus = new ArrayList<>();
         currentStatus.add(t);
         currentStatus.add(particle.getX());
         currentStatus.add(particle.getVx());
         status.add(currentStatus);
     }
-    public static List<ArrayList<Double>> verlet(Particle particle, double dt){
+    public static List<ArrayList<Double>> verlet(ParticleOscilator particle, double dt){
 
         double f = -k*particle.getX() - gamma*particle.getVx();
         double initialX = eulerX(particle.getX(), particle.getVx(), -dt, f, particle.getM());
@@ -79,7 +79,7 @@ public class Oscilator {
         return status;
     }
 
-    public static List<ArrayList<Double>> beeman(Particle particle, double dt){
+    public static List<ArrayList<Double>> beeman(ParticleOscilator particle, double dt){
 
         double f = -k*particle.getX() - gamma*particle.getVx();
         double initialX = eulerX(particle.getX(), particle.getVx(),-dt,f,particle.getM());
@@ -114,7 +114,7 @@ public class Oscilator {
 
     }
 
-    public static List<ArrayList<Double>> gear(Particle particle, double dt){
+    public static List<ArrayList<Double>> gear(ParticleOscilator particle, double dt){
 
         List<ArrayList<Double>> status = new ArrayList<>();
         double t = 0;

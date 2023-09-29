@@ -45,9 +45,11 @@ public class FileGenerator {
                 angle = random.nextDouble() * 2 * Math.PI;
                 double vx = v * Math.cos(angle);
                 double vy = v * Math.sin(angle);
+                double aux = Math.sqrt(Math.pow(vx,2) + Math.pow(vy,2));
+                double w = aux/circleR;
                 staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, radius, mass, angle);
 
-                particles.add(new Particle(x, y, vx, vy, radius, mass, angle));
+                particles.add(new Particle(x, y, w, radius, mass, angle));
             }
         } else {
 
@@ -74,12 +76,43 @@ public class FileGenerator {
                 angle = random.nextDouble() * 2 * Math.PI;
                 double vx = v * Math.cos(angle);
                 double vy = v * Math.sin(angle);
-                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, radius, mass, angle);
+                double aux = Math.sqrt((Math.pow(vx, 2) + Math.pow(vy,2)));
+                double w = aux/circleR;
+                double u = random.nextDouble(9, 12);
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, u, radius, mass, angle);
 
-                particles.add(new Particle(x, y, vx, vy, radius, mass, angle));
+                particles.add(new Particle(x, y, w, radius, mass, angle));
             }
         }
 
         staticWriter.close();
+    }
+
+    private static FileWriter positionsFileWriter;
+
+    public static void createFiles(String positionsFile) throws IOException {
+        positionsFileWriter = new FileWriter(positionsFile);
+    }
+
+    public static void writeOutput(List<Particle> particles, double time) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        sb.append(time);
+        for (Particle particle : particles) {
+            sb.append("\n");
+            String sb_line = particle.getId() + "\t" +
+                    particle.getX() + "\t" +
+                    particle.getY() + "\t" +
+                    particle.getVx() + "\t" +
+                    particle.getVy() + "\t" +
+                    particle.getRadius() + "\t" +
+                    particle.getM() + "\t";
+            sb.append(sb_line);
+        }
+        positionsFileWriter.write(sb.toString());
+    }
+
+    public static void closeFiles() throws IOException {
+        positionsFileWriter.close();
     }
 }

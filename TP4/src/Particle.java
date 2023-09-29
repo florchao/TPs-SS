@@ -2,6 +2,7 @@ package src;
 
 public class Particle {
 
+   private int id;
     private double x;
     private double y;
     private double m;
@@ -10,6 +11,9 @@ public class Particle {
     private double radius;
     private double u;
     private double angle;
+
+    private double ax;
+    private double ay;
     //w = v/r
 
     public Particle(double x, double y, double vx, double vy, double m) {
@@ -38,7 +42,8 @@ public class Particle {
         this.vy = vy;
         this.angle = angle;
     }
-    public Particle(double x, double y, double vx, double vy, double u, double radius, double m, double angle) {
+    public Particle(int id, double x, double y, double vx, double vy, double u, double radius, double m, double angle) {
+        this.id = id;
         this.x = x;
         this.y = y;
         this.m = m;
@@ -99,6 +104,26 @@ public class Particle {
     }
     public void setRadius(double radius) {
         this.radius = radius;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public double getAx() {
+        return ax;
+    }
+
+    public void setAx(double ax) {
+        this.ax = ax;
+    }
+
+    public double getAy() {
+        return ay;
+    }
+
+    public void setAy(double ay) {
+        this.ay = ay;
     }
 
     @Override
