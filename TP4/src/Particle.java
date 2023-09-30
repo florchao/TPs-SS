@@ -52,6 +52,27 @@ public class Particle {
         }
         this.x = aux;
     }
+
+    public boolean collides(Particle p, Double dt) {
+        double dx = getX() - p.getX();
+        double dvx = getVx() - p.getVx();
+
+        double sigma = radius + p.getRadius();
+
+        double dvdr = (dx * dvx);
+        if (dvdr >= 0) {
+            return false;
+        }
+
+        double dvdv = (dvx * dvx);
+        double drdr = (dx * dx);
+        double d = Math.pow(dvdr, 2) - dvdv * (drdr - Math.pow(sigma, 2));
+        if (d < 0) {
+            return false;
+        }
+
+        return (-(dvdr + Math.sqrt(d)) / dvdv ) < dt;
+    }
     public double getY() {
         return y;
     }

@@ -26,10 +26,10 @@ public class MainEx2 {
     }
 
     //a = movementEquation(p1, list)
-    private static double movementEquation(Particle p1, List<Particle> particleList){
+    private static double movementEquation(Particle p1, List<Particle> particleList, double dt){
         double sumForces = 0;
         for (Particle p2 : particleList) {
-            if (p2 != p1) {
+            if (p2 != p1 && p1.collides(p2, dt)) {
                 sumForces += collisionForce(p1, p2);
             }
         }
@@ -64,7 +64,7 @@ public class MainEx2 {
         }
     }
 
-    public static void initialRs(List<Particle> particles){
+    public static void initialRs(List<Particle> particles, double dt){
         for (Particle particle: particles) {
             List<Double> auxR = new ArrayList<>();
             //r0
@@ -72,7 +72,7 @@ public class MainEx2 {
             //r1
             auxR.add(particle.getVx());
             //r2
-            Double aux = movementEquation(particle, particles);
+            Double aux = movementEquation(particle, particles, dt);
             auxR.add(aux);
             //r3
             auxR.add(0.0);
@@ -123,7 +123,7 @@ public class MainEx2 {
         List<Double> deltasR2 = new ArrayList<>();
         for(Particle particle : particles){
 
-            Double F = movementEquation(particle, particles);
+            Double F = movementEquation(particle, particles,dT);
             Double r2 = newDerivatives.get(particle.getId()).get(2);
 
             double dR2X = (F - r2) * dT*dT / 2;
@@ -176,7 +176,7 @@ public class MainEx2 {
 
         int P = Integer.parseInt(args[1]);
         double dT = Math.pow(10, -P);
-        initialRs(particles);
+        initialRs(particles, dT);
 
         FileGenerator.createFiles("./input/positions.txt");
         gear(dT, particles);
