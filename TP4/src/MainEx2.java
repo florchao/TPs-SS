@@ -10,7 +10,6 @@ public class MainEx2 {
     static double L = 135;
     static double mass = 25;
     public static double tf = 100;
-    static double u = 9;
     private static List<List<Double>> Rs = new ArrayList<>();
 
     private static final double[] alpha = {3.0/16, 251.0/360, 1, 11.0/18, 1.0/6, 1.0/60};
@@ -94,7 +93,7 @@ public class MainEx2 {
 
             double r0x = rs.get(0) + rs.get(1) * dT + rs.get(2) * Math.pow(dT, 2) / 2 + rs.get(3) * Math.pow(dT, 3) / 6 + rs.get(4) * Math.pow(dT, 4) / 24 + rs.get(5) * Math.pow(dT, 5) / 120;
             particles.get(count).setX(r0x);
-            auxNewDerivatives.add(r0x % L);
+            auxNewDerivatives.add(r0x);
 
             double r1x = rs.get(1) + rs.get(2) * dT + rs.get(3) * Math.pow(dT, 2) / 2 + rs.get(4) * Math.pow(dT, 3) / 6 + rs.get(5) * Math.pow(dT, 4) / 24;
             particles.get(count).setVx(r1x);
