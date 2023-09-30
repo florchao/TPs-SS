@@ -8,7 +8,7 @@ public class MainEx2 {
     private static double r = 2.25;
     private static double k = 2500;
     static double L = 135;
-    static double mass = 0.25;
+    static double mass = 25;
     public static double tf = 100;
     static double u = 9;
     private static List<List<Double>> Rs = new ArrayList<>();
@@ -46,6 +46,7 @@ public class MainEx2 {
             for (Particle particle: particles) {
                 particle.setX(current.get(particle.getId()).get(0));
                 particle.setVx(current.get(particle.getId()).get(1));
+                System.out.println("id:" + particle.getId() + "     vx:" + particle.getVx());
                 particle.setAx(current.get(particle.getId()).get(2));
 
             }
