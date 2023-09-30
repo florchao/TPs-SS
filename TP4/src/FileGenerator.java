@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Random;
 public class FileGenerator {
 
-    public void generateStaticFile(String staticFileName, double radius, int n, double mass, double v, double L) throws IOException {
+    public void generateStaticFile(String staticFileName, double radius, int n, double mass, double L) throws IOException {
         File file = new File(staticFileName);
         if (!file.exists()) {
             file.getParentFile().mkdirs();
@@ -28,12 +28,11 @@ public class FileGenerator {
                 double y = 0;
                 Random random = new Random();
                 double x = prevX + spacing;
-                double vx = (random.nextBoolean() ? 1 : -1) * v;
                 double vy = 0;
                 double u = random.nextDouble(9,12);
-                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, u, radius, mass);
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, u, vy, u, radius, mass);
 
-                particles.add(new Particle(j, x, y, vx, vy, u, radius, mass));
+                particles.add(new Particle(j, x, y, u, vy, u, radius, mass));
                 prevX = x;
             }
         } else {
@@ -54,12 +53,11 @@ public class FileGenerator {
                         }
                     }
                 }
-                double vx = (random.nextBoolean() ? 1 : -1) * v;
                 double vy = 0;
                 double u = random.nextDouble(9,12);
-                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, u, radius, mass);
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, u, vy, u, radius, mass);
 
-                particles.add(new Particle(j, x, y, vx, vy, u, radius, mass));
+                particles.add(new Particle(j, x, y, u, vy, u, radius, mass));
             }
         }
 

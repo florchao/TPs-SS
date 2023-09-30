@@ -47,6 +47,9 @@ public class Particle {
     public void setX(double x) {
         double l = 135;
         double aux = x % l;
+        if (aux < 0){
+            aux +=l;
+        }
         this.x = aux;
     }
     public double getY() {

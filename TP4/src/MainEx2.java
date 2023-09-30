@@ -170,7 +170,7 @@ public class MainEx2 {
     public static void main(String[] args) throws IOException {
         int n = Integer.parseInt(args[0]);
         FileGenerator writeFiles = new FileGenerator();
-        writeFiles.generateStaticFile("./input/inputFile.txt", r, n, mass, 0.01, L);
+        writeFiles.generateStaticFile("./input/inputFile.txt", r, n, mass, L);
 
         List<Particle> particles = ParticleGenerator.generateParticles("./input/inputFile.txt");
 
