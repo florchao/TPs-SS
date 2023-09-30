@@ -10,7 +10,6 @@ import java.util.Random;
 public class ParticleGenerator {
     public static List<Particle> generateParticles(String staticFileName) {
         List<Particle> particles = new ArrayList<>();
-        Random random = new Random();
         try (BufferedReader reader = new BufferedReader(new FileReader(staticFileName))) {
             String line;
 
@@ -24,8 +23,7 @@ public class ParticleGenerator {
                     values[i] = Double.parseDouble(input[i]);
                 }
 
-                double u = random.nextDouble(9, 12);
-                particles.add(new Particle(id, values[0], values[1], values[2], values[3], u,values[4], values[4], values[6]));
+                particles.add(new Particle(id, values[0], values[1], values[2], values[3], values[4], values[5], values[6]));
                 id++;
             }
 

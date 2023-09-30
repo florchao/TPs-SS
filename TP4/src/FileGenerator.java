@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Random;
 public class FileGenerator {
 
-    public void generateStaticFile(String staticFileName, double radius, int n, double mass, double v, double circleR) throws IOException {
+    public void generateStaticFile(String staticFileName, double radius, int n, double mass, double v, double L) throws IOException {
         File file = new File(staticFileName);
         if (!file.exists()) {
             file.getParentFile().mkdirs();
@@ -22,34 +22,19 @@ public class FileGenerator {
         List<Particle> particles = new ArrayList<>();
 
         if (n == 25) {
+            double prevX = 0;
+            double spacing = L / n;
             for (int j = 0; j < n; j++) {
-                boolean overlapping = true;
-                double x = 0;
                 double y = 0;
-                double angle = 0;
                 Random random = new Random();
-                while (overlapping) {
-                    overlapping = false;
-                    angle = 2.0 * Math.PI * j / n;
-                    x = circleR * Math.cos(angle);
-                    y = circleR * Math.sin(angle);
+                double x = prevX + spacing;
+                double vx = (random.nextBoolean() ? 1 : -1) * v;
+                double vy = 0;
+                double u = random.nextDouble(9,12);
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, u, radius, mass);
 
-                    for (Particle particle : particles) {
-                        double distance = Math.sqrt(Math.pow(x - particle.getX(), 2) + Math.pow(y - particle.getY(), 2));
-                        if (distance < 2 * radius) {
-                            overlapping = true;
-                            break;
-                        }
-                    }
-                }
-                angle = random.nextDouble() * 2 * Math.PI;
-                double vx = v * Math.cos(angle);
-                double vy = v * Math.sin(angle);
-                double aux = Math.sqrt(Math.pow(vx,2) + Math.pow(vy,2));
-                double w = aux/circleR;
-                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, radius, mass, angle);
-
-                particles.add(new Particle(x, y, w, radius, mass, angle));
+                particles.add(new Particle(j, x, y, vx, vy, u, radius, mass));
+                prevX = x;
             }
         } else {
 
@@ -57,31 +42,24 @@ public class FileGenerator {
                 boolean overlapping = true;
                 double x = 0;
                 double y = 0;
-                double angle = 0;
                 Random random = new Random();
                 while (overlapping) {
                     overlapping = false;
-                    angle = random.nextDouble() * 2 * Math.PI;
-                    x = circleR * Math.cos(angle);
-                    y = circleR * Math.sin(angle);
-
                     for (Particle particle : particles) {
-                        double distance = Math.sqrt(Math.pow(x - particle.getX(), 2) + Math.pow(y - particle.getY(), 2));
+                        double distance = Math.abs(x - particle.getX());
                         if (distance < 2 * radius) {
                             overlapping = true;
+                            x = random.nextDouble() * L;
                             break;
                         }
                     }
                 }
-                angle = random.nextDouble() * 2 * Math.PI;
-                double vx = v * Math.cos(angle);
-                double vy = v * Math.sin(angle);
-                double aux = Math.sqrt((Math.pow(vx, 2) + Math.pow(vy,2)));
-                double w = aux/circleR;
-                double u = random.nextDouble(9, 12);
-                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, u, radius, mass, angle);
+                double vx = (random.nextBoolean() ? 1 : -1) * v;
+                double vy = 0;
+                double u = random.nextDouble(9,12);
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, vx, vy, u, radius, mass);
 
-                particles.add(new Particle(x, y, w, radius, mass, angle));
+                particles.add(new Particle(j, x, y, vx, vy, u, radius, mass));
             }
         }
 
@@ -105,6 +83,7 @@ public class FileGenerator {
                     particle.getY() + "\t" +
                     particle.getVx() + "\t" +
                     particle.getVy() + "\t" +
+                    particle.getU() + "\t" +
                     particle.getRadius() + "\t" +
                     particle.getM() + "\t";
             sb.append(sb_line);

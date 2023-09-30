@@ -18,10 +18,10 @@ def get_particle_data(frame_file):
             if len(line_info) > 1:
                 frame_lines.append(line_info)
             elif len(line_info) == 1:
-                df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "y", "w", "radius", "mass"])
+                df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "y", "vx", "vy", "u","radius", "mass"])
                 frames.append(df)
                 frame_lines = []
-        df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "y", "w", "radius", "mass"])
+        df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "y", "vx","vy", "u", "radius", "mass"])
         frames.append(df)
     return frames
 
@@ -32,7 +32,7 @@ def get_particles(data_frame):
     particles.create_property('Position', data=np.array((data_frame.x, data_frame.y, np.zeros([len(data_frame.x),]))).T)
     particles.create_property('Mass', data=data_frame.mass)
     particles.create_property('Radius', data=data_frame.radius)
-    particles.create_property('Velocity', data=np.array((data_frame.w, np.zeros([len(data_frame.x,)]), np.zeros([len(data_frame.x,)]))).T)
+    particles.create_property('Velocity', data=np.array((data_frame.vx, data_frame.vy, np.zeros([len(data_frame.x,)]))).T)
 
     return particles
 

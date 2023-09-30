@@ -2,7 +2,7 @@ package src;
 
 public class Particle {
 
-   private int id;
+    private int id;
     private double x;
     private double y;
     private double m;
@@ -10,8 +10,6 @@ public class Particle {
     private double vy;
     private double radius;
     private double u;
-    private double angle;
-
     private double ax;
     private double ay;
     //w = v/r
@@ -32,17 +30,7 @@ public class Particle {
         this.vx = vx;
         this.vy = vy;
     }
-
-    public Particle(double x, double y, double vx, double vy, double radius, double m, double angle) {
-        this.x = x;
-        this.y = y;
-        this.m = m;
-        this.radius = radius;
-        this.vx = vx;
-        this.vy = vy;
-        this.angle = angle;
-    }
-    public Particle(int id, double x, double y, double vx, double vy, double u, double radius, double m, double angle) {
+    public Particle(int id, double x, double y, double vx, double vy, double u, double radius, double m) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -51,23 +39,15 @@ public class Particle {
         this.vy = vy;
         this.u = u;
         this.radius = radius;
-        this.angle = angle;
-    }
-
-
-    public double getAngle() {
-        return angle;
-    }
-
-    public void setAngle(double angle) {
-        this.angle = angle;
     }
 
     public double getX() {
         return x;
     }
     public void setX(double x) {
-        this.x = x;
+        double l = 135;
+        double aux = x % l;
+        this.x = aux;
     }
     public double getY() {
         return y;
