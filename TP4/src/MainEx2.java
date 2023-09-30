@@ -29,7 +29,7 @@ public class MainEx2 {
         double sumForces = 0;
         for (Particle p2 : particleList) {
             if (p2 != p1 && p1.collides(p2, dt)) {
-                sumForces += collisionForce(p1, p2);
+                sumForces += collisionForce(p2, p1);
             }
         }
         return (getForce(p1) + sumForces)/p1.getM();
