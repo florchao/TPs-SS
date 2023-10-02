@@ -5,182 +5,117 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainEx2 {
-    private static double r = 2.25;
-    private static double k = 2500;
-    static double L = 135;
-    static double mass = 25;
-    public static double tf = 100;
-    private static List<List<Double>> Rs = new ArrayList<>();
-
-    private static final double[] alpha = {3.0/16, 251.0/360, 1, 11.0/18, 1.0/6, 1.0/60};
-
-
-    private static double getForce(Particle particle){
-        return (particle.getU() - particle.getVx());
-    }
-
-    //fuerza que le ejerce p1 sobre p2
-    private static double collisionForce(Particle p1, Particle p2){
-        return k*(Math.abs(p1.getX() - p2.getX()) - 2*r)*Math.signum(p1.getX() - p2.getX());
-    }
-
-    //a = movementEquation(p1, list)
-    private static double movementEquation(Particle p1, List<Particle> particleList, double dt){
-        double sumForces = 0;
-        for (Particle p2 : particleList) {
-            if (p2 != p1 && p1.collides(p2, dt)) {
-                sumForces += collisionForce(p2, p1);
-            }
-        }
-        return (getForce(p1) + sumForces)/p1.getM();
-    }
-
-
-    public static void gear(double dT, List<Particle> particles) throws IOException {
-
-        double t = dT;
-        List<List<Double>> current = Rs;
-
-        while(t <= tf) {
-            for (Particle particle: particles) {
-                particle.setX(current.get(particle.getId()).get(0));
-                particle.setVx(current.get(particle.getId()).get(1));
-                System.out.println("id:" + particle.getId() + "     vx:" + particle.getVx());
-                particle.setAx(current.get(particle.getId()).get(2));
-
-            }
-            FileGenerator.writeOutput(particles, t);
-
-            //predictions
-            List<List<Double>> newDerivatives = gearPredictor(current, dT, particles);
-
-            //evaluator
-            List<Double> deltasR2 = getR2(newDerivatives, dT, particles);
-
-            //correction
-            current = gearCorrector(newDerivatives, dT, deltasR2);
-
-            t += dT;
-        }
-    }
-
-    public static void initialRs(List<Particle> particles, double dt){
-        for (Particle particle: particles) {
-            List<Double> auxR = new ArrayList<>();
-            //r0
-            auxR.add(particle.getX());
-            //r1
-            auxR.add(particle.getVx());
-            //r2
-            Double aux = movementEquation(particle, particles, dt);
-            auxR.add(aux);
-            //r3
-            auxR.add(0.0);
-            //r4
-            auxR.add(0.0);
-            //r5
-            auxR.add(0.0);
-
-            Rs.add(auxR);
-        }
-    }
-
-    public static List<List<Double>> gearPredictor(List<List<Double>> der, double dT, List<Particle> particles){
-        List<List<Double>> newDerivatives = new ArrayList<>();
-        int count = 0;
-        for(List<Double> rs : der) {
-            List<Double> auxNewDerivatives = new ArrayList<>();
-
-            double r0x = rs.get(0) + rs.get(1) * dT + rs.get(2) * Math.pow(dT, 2) / 2 + rs.get(3) * Math.pow(dT, 3) / 6 + rs.get(4) * Math.pow(dT, 4) / 24 + rs.get(5) * Math.pow(dT, 5) / 120;
-            particles.get(count).setX(r0x);
-            auxNewDerivatives.add(r0x);
-
-            double r1x = rs.get(1) + rs.get(2) * dT + rs.get(3) * Math.pow(dT, 2) / 2 + rs.get(4) * Math.pow(dT, 3) / 6 + rs.get(5) * Math.pow(dT, 4) / 24;
-            particles.get(count).setVx(r1x);
-            auxNewDerivatives.add(r1x);
-
-            double r2x = rs.get(2) + rs.get(3) * dT + rs.get(4) * Math.pow(dT, 2) / 2 + rs.get(5) * Math.pow(dT, 3) / 6;
-            particles.get(count).setAx(r2x);
-            auxNewDerivatives.add(r2x);
-
-            double r3x = rs.get(3) + rs.get(4) * dT + rs.get(5) * Math.pow(dT, 2) / 2;
-            auxNewDerivatives.add(r3x);
-
-            double r4x = rs.get(4) + rs.get(5) * dT;
-            auxNewDerivatives.add(r4x);
-
-            double r5x = rs.get(5);
-            auxNewDerivatives.add(r5x);
-
-            newDerivatives.add(auxNewDerivatives);
-            count++;
-        }
-
-        return newDerivatives;
-    }
-
-    private static List<Double> getR2(List<List<Double>> newDerivatives, double dT, List<Particle> particles){
-        List<Double> deltasR2 = new ArrayList<>();
-        for(Particle particle : particles){
-
-            Double F = movementEquation(particle, particles,dT);
-            Double r2 = newDerivatives.get(particle.getId()).get(2);
-
-            double dR2X = (F - r2) * dT*dT / 2;
-
-            deltasR2.add(dR2X);
-        }
-        return deltasR2;
-    }
-
-    public static List<List<Double>> gearCorrector(List<List<Double>> der, double dT, List<Double>  dR2){
-        List<List<Double>> newDerivatives = new ArrayList<>();
-        int count = 0;
-        for(List<Double> rs : der) {
-
-            List<Double> auxNewDerivatives = new ArrayList<>();
-
-            double r0x = rs.get(0) + (alpha[0] * dR2.get(count));
-            auxNewDerivatives.add(r0x % L);
-
-            double r1x = rs.get(1) + (alpha[1] * dR2.get(count) * 1 ) / (dT);
-            auxNewDerivatives.add(r1x);
-
-
-            double r2x = rs.get(2) + (alpha[2] * dR2.get(count) * 2) / (dT * dT);
-            auxNewDerivatives.add(r2x);
-
-
-            double r3x = rs.get(3) + (alpha[3] * dR2.get(count) * 6) / (Math.pow(dT, 3));
-            auxNewDerivatives.add(r3x);
-
-
-            double r4x = rs.get(4) + (alpha[4] * dR2.get(count) * 24) / (Math.pow(dT, 4));
-            auxNewDerivatives.add(r4x);
-
-            double r5x = rs.get(5) + (alpha[5] * dR2.get(count) * 120) / (Math.pow(dT, 5));
-            auxNewDerivatives.add(r5x);
-
-            count++;
-            newDerivatives.add(auxNewDerivatives);
-        }
-        return newDerivatives;
-    }
-
+    private static final double r = 2.25;
+    private static final double k = 2500;
+    private static final double DT_MAX = 0.1;
+    private static final double L = 135;
+    private static final double mass = 25;
+    private static final double tf = 180.01;
+    private static List<Particle> particles;
+    private static double dt = 0;
     public static void main(String[] args) throws IOException {
-        int n = Integer.parseInt(args[0]);
-        FileGenerator writeFiles = new FileGenerator();
-        writeFiles.generateStaticFile("./input/inputFile.txt", r, n, mass, L);
 
-        List<Particle> particles = ParticleGenerator.generateParticles("./input/inputFile.txt");
+        int N = Integer.parseInt(args[0]);
+        int k = Integer.parseInt(args[1]);
+        String outputFile = "output/positionN" + N;
 
-        int P = Integer.parseInt(args[1]);
-        double dT = Math.pow(10, -P);
-        initialRs(particles, dT);
+        FileGenerator fileGenerator = new FileGenerator();
 
-        FileGenerator.createFiles("./input/positions.txt");
-        gear(dT, particles);
+        dt = Math.pow(10, -k);
+        fileGenerator.generateStaticFile("input/StaticN" + N + ".txt", r, N, mass, L);
+        Parameters parameters = ParticleGenerator.generateParticles("input/StaticN" + N + ".txt");
+        fileGenerator.writeOutput(outputFile + "K" + k + ".txt", parameters.getParticles(), 0.0);
+
+        createCollision(parameters.getParticles(), dt);
+
+        double t = dt;
+        double totalTime = 0;
+        int itPerFrame = (int) Math.ceil(DT_MAX / dt);
+        int frames = 0;
+        while (t <= tf) {
+            frames++;
+            setParticles(gear());
+            totalTime+=dt;
+            if (frames == itPerFrame) {
+                fileGenerator.writeOutput(outputFile + "K" + k + ".txt", getParticles(), totalTime);
+                frames = 0;
+            }
+            t += dt;
+
+        }
+    }
+
+    private static List<Particle> gear() {
+        List<Particle> aux = new ArrayList<>();
+        for(Particle p1 : particles) {
+            Particle particle = new Particle(p1.getId(), p1.getX(), p1.getVx(), p1.getU(), p1.getR(), p1.getM(), p1.getFx(), p1.getFy(), p1.getX2(), p1.getX3(), p1.getX4(), p1.getX5(), p1.getRealX());
+
+            double[] predictionPositionX = gearPredictor(particle.getX()%L, p1.getVx(), p1.getX2(), p1.getX3(), p1.getX4(), p1.getX5(), particle.getRealX());
+
+            particle.setX(predictionPositionX[0]%L);
+            particle.setVx(predictionPositionX[1]);
+            particle.setRealX(predictionPositionX[6]);
+
+            double deltaA = movementEquation(particle, particles) - predictionPositionX[2];
+            double deltaR2 = deltaA * Math.pow(dt, 2) / 2;
+
+            double[] alpha = {3/16.0, 251/360.0, 1, 11/18.0, 1/6.0, 1/60.0};
+            particle.setX((predictionPositionX[0] + alpha[0] * deltaR2) % L);
+            particle.setRealX((predictionPositionX[6] + alpha[0] * deltaR2));
+            particle.setVx(predictionPositionX[1] + alpha[1] * deltaR2 / dt);
+            particle.setX2(predictionPositionX[2] + alpha[2] * deltaR2 * 2 / Math.pow(dt, 2));
+            particle.setX3(predictionPositionX[3] + alpha[3] * deltaR2 * 6 / Math.pow(dt, 3));
+            particle.setX4(predictionPositionX[4] + alpha[4] * deltaR2 * 24 / Math.pow(dt, 4));
+            particle.setX5(predictionPositionX[5] + alpha[5] * deltaR2 * 120 / Math.pow(dt, 5));
+
+            aux.add(particle);
+        }
+
+        return aux;
+    }
+
+    private static double collisionForce(Particle p1, Particle p2) {
+        return k * (Math.abs(p1.getX()-p2.getX()) - (2*p1.getR())) * (Math.signum(p1.getX()-p2.getX()));
+    }
+
+    private static double propulsionForce(Particle p) {
+        return (p.getU() - p.getVx());
+    }
+    private static double movementEquation(Particle p, List<Particle> particles) {
+        double sum = 0.0;
+        for(Particle particle: particles) {
+            if(!particle.equals(p) && p.collides(particle, dt)) {
+                sum += collisionForce(particle, p);
+            }
+        }
+        return (propulsionForce(p) + sum) / p.getM();
+    }
+
+    private static double[] gearPredictor(double r, double r1, double r2, double r3, double r4, double r5, double rNoPeriodic) {
+        double rp = r + r1 * dt + r2 * Math.pow(dt, 2) / 2 + r3 * Math.pow(dt, 3) / 6 + r4 * Math.pow(dt, 4) / 24 + r5 * Math.pow(dt, 5) / 120;
+        double rpNoPeriodic = rNoPeriodic + r1 * dt + r2 * Math.pow(dt, 2) / 2 + r3 * Math.pow(dt, 3) / 6 + r4 * Math.pow(dt, 4) / 24 + r5 * Math.pow(dt, 5) / 120;
+        double r1p = r1 + r2 * dt + r3 * Math.pow(dt, 2) / 2 + r4 * Math.pow(dt, 3) /6 + r5 * Math.pow(dt, 4) / 24;
+        double r2p = r2 + r3 * dt + r4 * Math.pow(dt, 2) / 2 + r5 * Math.pow(dt, 3) / 6;
+        double r3p = r3 + r4 * dt + r5 * Math.pow(dt, 2) / 2;
+        double r4p = r4 + r5 * dt;
+
+        return new double[]{rp % L, r1p, r2p, r3p, r4p, r5, rpNoPeriodic};
 
     }
 
+    public static void setParticles(List<Particle> particles) {
+        MainEx2.particles = particles;
+    }
+
+    public static void setDt(double dt) {
+        MainEx2.dt = dt;
+    }
+
+    public static List<Particle> getParticles() {
+        return particles;
+    }
+    private static void createCollision(List<Particle> particles, double dt){
+        setParticles(particles);
+        setDt(dt);
+    }
 }

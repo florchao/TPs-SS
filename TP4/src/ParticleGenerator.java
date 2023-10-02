@@ -4,35 +4,27 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class ParticleGenerator {
-    public static List<Particle> generateParticles(String staticFileName) {
-        List<Particle> particles = new ArrayList<>();
+    public static Parameters generateParticles(String staticFileName) throws IOException {
+        Parameters parameters = new Parameters();
+        parameters.setParticles(new ArrayList<>());
+
         try (BufferedReader reader = new BufferedReader(new FileReader(staticFileName))) {
             String line;
-
             reader.readLine();
-            int id =0;
-
+            int j = 0;
             while ((line = reader.readLine()) != null) {
-                String[] input = line.split("\t");
-                double[] values = new double[input.length];
-                for (int i = 0; i < input.length; i++) {
-                    values[i] = Double.parseDouble(input[i]);
+                j++;
+                String[] values = line.split("\t");
+                double[] aux = new double[values.length];
+                for (int i = 0; i < values.length; i++) {
+                    aux[i] = Double.parseDouble(values[i]);
                 }
-
-                particles.add(new Particle(id, values[0], values[1], values[2], values[3], values[4], values[5], values[6]));
-                id++;
+                parameters.addParticle(new Particle(j, aux[0], aux[1], aux[2], aux[3], aux[4], 0.0, 0.0, aux[1]));
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
-        return particles;
-
+        return parameters;
     }
 }
 

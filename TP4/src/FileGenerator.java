@@ -6,90 +6,89 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 public class FileGenerator {
 
-    public void generateStaticFile(String staticFileName, double radius, int n, double mass, double L) throws IOException {
-        File file = new File(staticFileName);
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-            file.createNewFile();
-        }
-
-        PrintWriter staticWriter = new PrintWriter(new FileWriter(file));
-        staticWriter.printf("0.0\n");
-
-        List<Particle> particles = new ArrayList<>();
-
-        if (n == 25) {
-            double prevX = 0;
-            double spacing = L / n;
-            for (int j = 0; j < n; j++) {
-                double y = 0;
-                Random random = new Random();
-                double x = prevX + spacing;
-                double vy = 0;
-                double u = random.nextDouble(9,12);
-                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, u, vy, u, radius, mass);
-
-                particles.add(new Particle(j, x, y, u, vy, u, radius, mass));
-                prevX = x;
+    public void generateStaticFile(String staticFileName, double particleRadius, int n, double mass, double lineLength) throws IOException {
+       Random random = new Random();
+        if (n >= 25) {
+            File file = new File(staticFileName);
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
             }
-        } else {
 
-            for (int j = 0; j < n; j++) {
-                boolean overlapping = true;
-                double x = 0;
-                double y = 0;
-                Random random = new Random();
-                while (overlapping) {
-                    overlapping = false;
-                    for (Particle particle : particles) {
-                        double distance = Math.abs(x - particle.getX());
-                        if (distance < 2 * radius) {
-                            overlapping = true;
-                            x = random.nextDouble() * L;
+            PrintWriter staticWriter = new PrintWriter(new FileWriter(file));
+            staticWriter.printf("0.0\n");
+
+            List<Particle> particles = new ArrayList<>();
+            double requiredSpacing = 2 * particleRadius;
+
+            double unusedSpace = lineLength - (requiredSpacing * n);
+            double spacing = unusedSpace > 0 ? unusedSpace / (n - 1) : 0;
+
+            for (int i = 0; i < n; i++) {
+                double x = i * (requiredSpacing + spacing);
+                double u = random.nextDouble(9,12);
+
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\n", x, u, u, particleRadius, mass);
+
+                particles.add(new Particle(i, x, u, u, particleRadius, mass, 0.0, 0.0, x));
+            }
+
+            staticWriter.close();
+        } else {
+            File file = new File(staticFileName);
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+
+            PrintWriter staticWriter = new PrintWriter(new FileWriter(file));
+            staticWriter.printf("0.0\n");
+
+            List<Particle> particles = new ArrayList<>();
+
+            for (int i = 0; i < n; i++) {
+                double x = random.nextDouble() * lineLength;
+                boolean isOverlap;
+
+                do {
+                    isOverlap = false;
+                    for (Particle existingParticle : particles) {
+                        double distance = Math.abs(x - existingParticle.getX());
+                        if (distance < 2 * particleRadius) {
+                            isOverlap = true;
+                            x = random.nextDouble() * lineLength;
                             break;
                         }
                     }
-                }
-                double vy = 0;
+                } while (isOverlap);
+
                 double u = random.nextDouble(9,12);
-                staticWriter.printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n", x, y, u, vy, u, radius, mass);
-
-                particles.add(new Particle(j, x, y, u, vy, u, radius, mass));
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\n", x, u, u, particleRadius, mass);
+                particles.add(new Particle(i, x, u, u, particleRadius, mass, 0.0, 0.0, x));
             }
+
+            staticWriter.close();
+            }
+    }
+
+    public void writeOutput(String fileName, List<Particle> particles, double time) throws IOException {
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(fileName, true));
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(time).append("\n");
+        for(Particle particle : particles) {
+            stringBuilder.append(String.format(Locale.US ,"%d\t%f\t%f\t%f\t%f\t%f\n",
+                    particle.getId(),
+                    particle.getX(),
+                    particle.getVx(),
+                    particle.getFx(),
+                    particle.getFy(),
+                    particle.getR()));
         }
-
-        staticWriter.close();
-    }
-
-    private static FileWriter positionsFileWriter;
-
-    public static void createFiles(String positionsFile) throws IOException {
-        positionsFileWriter = new FileWriter(positionsFile);
-    }
-
-    public static void writeOutput(List<Particle> particles, double time) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n");
-        sb.append(time);
-        for (Particle particle : particles) {
-            sb.append("\n");
-            String sb_line = particle.getId() + "\t" +
-                    particle.getX() + "\t" +
-                    particle.getY() + "\t" +
-                    particle.getVx() + "\t" +
-                    particle.getVy() + "\t" +
-                    particle.getU() + "\t" +
-                    particle.getRadius() + "\t" +
-                    particle.getM() + "\t";
-            sb.append(sb_line);
-        }
-        positionsFileWriter.write(sb.toString());
-    }
-
-    public static void closeFiles() throws IOException {
-        positionsFileWriter.close();
+        outputWriter.write(stringBuilder.toString());
+        outputWriter.close();
     }
 }
