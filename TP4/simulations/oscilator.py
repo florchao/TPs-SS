@@ -45,12 +45,10 @@ def parseParams(file):
         error = error + (y - x) ** 2
     return r, position, time, error
 
-
-if __name__ == '__main__':
-    rV, positionV, timeV, errorV = parseParams("../output/Verlet_1.txt")
-    rG, positionG, timeG, errorG = parseParams("../output/Gear_1.txt")
-    rB, positionB, timeB, errorB = parseParams("../output/Beeman_1.txt")
-    draw(rV, positionV, timeV, rG, positionG, timeG, rB, positionB, timeB)
-    print("Error cuadratico Verlet: ", errorV)
-    print("Error cuadratico Gear: ", errorG)
-    print("Error cuadratico Beeman: ", errorB)
+rV, positionV, timeV, errorV = parseParams("../output/Verlet_1.txt")
+rG, positionG, timeG, errorG = parseParams("../output/Gear_1.txt")
+rB, positionB, timeB, errorB = parseParams("../output/Beeman_1.txt")
+draw(rV, positionV, timeV, rG, positionG, timeG, rB, positionB, timeB)
+print("Error cuadratico Verlet: ", errorV)
+print("Error cuadratico Gear: ", errorG)
+print("Error cuadratico Beeman: ", errorB)
