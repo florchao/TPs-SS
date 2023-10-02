@@ -4,7 +4,7 @@ from ovito.data import DataCollection, SimulationCell, Particles
 from ovito.io import export_file
 from ovito.pipeline import StaticSource, Pipeline
 
-def get_particle_data(frame_file):
+def parseParams(frame_file):
     frames = []
     with open(frame_file, "r") as frame:
         next(frame)
@@ -18,10 +18,10 @@ def get_particle_data(frame_file):
             if len(line_info) > 1:
                 frame_lines.append(line_info)
             elif len(line_info) == 1:
-                df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "y", "vx", "vy", "u","radius", "mass"])
+                df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "vx", "fx","fy", "radius"])
                 frames.append(df)
                 frame_lines = []
-        df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "y", "vx","vy", "u", "radius", "mass"])
+        df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "vx", "fx","fy", "radius"])
         frames.append(df)
     return frames
 
@@ -29,16 +29,15 @@ def get_particle_data(frame_file):
 def get_particles(data_frame):
     particles = Particles()
     particles.create_property('Particle Identifier', data=data_frame.id)
-    particles.create_property('Position', data=np.array((data_frame.x, data_frame.y, np.zeros([len(data_frame.x),]))).T)
-    particles.create_property('Mass', data=data_frame.mass)
+    particles.create_property('Position', data=np.array((data_frame.x, np.zeros([len(data_frame.x,)]), np.zeros([len(data_frame.x),]))).T)
     particles.create_property('Radius', data=data_frame.radius)
-    particles.create_property('Velocity', data=np.array((data_frame.vx, data_frame.vy, np.zeros([len(data_frame.x,)]))).T)
+    particles.create_property('Velocity', data=np.array((data_frame.vx, np.zeros([len(data_frame.vx,)]), np.zeros([len(data_frame.vx,)]))).T)
 
     return particles
 
 
 if __name__ == '__main__':
-    data_frame = get_particle_data("../input/positions.txt")
+    data_frame = parseParams("../output/positionN5K3.txt")
     pipeline = Pipeline(source=StaticSource(data=DataCollection()))
 
     def simulation_cell(frame, data):
@@ -52,6 +51,6 @@ if __name__ == '__main__':
 
     pipeline.modifiers.append(simulation_cell)
 
-    export_file(pipeline, "../output/simulation" + '.dump', 'lammps/dump',
-                columns=["Particle Identifier", "Position.X", "Position.Y", "Velocity.X", "Velocity.Y", "Radius", "Mass"],
+    export_file(pipeline, "../output/simulationK1" + '.dump', 'lammps/dump',
+                columns=["Particle Identifier", "Position.X", "Velocity.X", "Radius"],
                 multiple_frames=True, start_frame=0, end_frame=len(data_frame) - 1)

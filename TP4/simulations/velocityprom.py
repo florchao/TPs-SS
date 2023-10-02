@@ -18,7 +18,6 @@ for N in Ns:
             particles_data[time] = []
         else:
             particle = {
-                'x': float(data[1]),
                 'vx': float(data[2]),
             }
 
