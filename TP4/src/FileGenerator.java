@@ -98,12 +98,13 @@ public class FileGenerator {
 
         ArrayList<Double> u = new ArrayList<>(doubleList);
 
+        Integer aux = Math.floorDiv(u.size(), n);
         for (int i = 0; i < n; i++) {
             double x = i * (requiredSpacing + spacing);
 
-            staticWriter.printf("%f\t%f\t%f\t%f\t%f\n", x, u.get(i), u.get(i), particleRadius, mass);
+            staticWriter.printf("%f\t%f\t%f\t%f\t%f\n", x, u.get(i*aux), u.get(i*aux), particleRadius, mass);
 
-            particles.add(new Particle(i, x, u.get(i), u.get(i), particleRadius, mass, 0.0, 0.0, x));
+            particles.add(new Particle(i, x, u.get(i*aux), u.get(i*aux), particleRadius, mass, 0.0, 0.0, x));
         }
 
         staticWriter.close();
