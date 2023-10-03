@@ -20,7 +20,6 @@ for N in Ns:
             particle = {
                 'vx': float(data[2]),
             }
-
             particles_data[time].append(particle)
     aux = []
     for i in particles_data.keys():
@@ -34,7 +33,7 @@ for N in Ns:
     plt.plot([i * 0.1 for i in range(0, 1801)], aux, linestyle='-', color=colors[index],label=f'N = {N}')
     index += 1
 plt.xlabel('Tiempo (s)')
-plt.ylabel('Velocidad Promedio (cm/s)')
+plt.ylabel('Velocidad Promedio ($\\frac{{\mathrm{cm}}}{{\mathrm{s}}})$')
 plt.legend()
 plt.rcParams.update({'font.size': 24})
 plt.show()
