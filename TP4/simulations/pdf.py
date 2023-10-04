@@ -2,15 +2,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-stationary = 140
+stationary = 120
 colors = ['purple', 'magenta', 'orange', 'cyan']
 velocities_dict = {}
+Ns = [10,20,30]
 
 i = 0
-for j in len(filenames):
+for j in Ns:
     i += 10
     velocities_dict[i] = []
-    with open('../output/positionN' + str(i) +'K3.txt', 'r') as archive:
+    with open('../output/positionN' + str(j) +'K3.txt', 'r') as archive:
         dt = archive.readline()
         while float(dt) < stationary:
             for j in range(i):
@@ -19,7 +20,7 @@ for j in len(filenames):
         for line in archive:
             cols = line.split()
             if len(cols) != 1:
-                velocities_dict[i].append(float(cols[2]))
+                velocities_dict[i].append(float(cols[3]))
 
     archive.close()
 
