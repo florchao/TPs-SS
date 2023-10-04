@@ -13,7 +13,7 @@ def calculate(t):
 
 def draw(rV, positionV, timeV, rG, positionG, timeG, rB, positionB, timeB):
 
-    plt.plot(timeV, positionV, color = "pink")
+    plt.plot(timeV, positionV, color = "magenta")
     plt.plot(timeB, positionB, color = "purple", linestyle='dashed')
     plt.plot(timeG, positionG, color = "orange")
     plt.plot(timeV, rV, color = "green", linestyle='dashdot')

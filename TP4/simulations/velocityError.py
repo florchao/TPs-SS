@@ -26,7 +26,7 @@ particles_data = {}
 arrayVels = {}
 
 for N in Ns:
-    data = parseParams("../output/positionN" + str(N) +"K3.txt")
+    data = parseParams("../output/orderPositionN" + str(N) +"K3.txt")
     velProms = []
     arrayVels[N] = []
     for i in data.keys():
@@ -54,7 +54,7 @@ for i in range(len(Ns)):
     error.append(np.std(aux))
 
 
-plt.plot(Ns, aux_prom, linestyle='-', color='pink', label='Línea de Unión')
+plt.plot(Ns, aux_prom, linestyle='-', color='magenta', label='Línea de Unión')
 plt.errorbar(Ns, aux_prom, yerr=error, fmt='o', color='purple', capsize=6)
 
 plt.xlabel('N')

@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 
-Ns = [5,10, 15,20,25,30]
-colors = ['purple', 'pink', 'orange', 'lightgreen', 'lightblue', 'magenta']
+Ns = [5,10,15,20,25,30]
+colors = ['purple', 'magenta', 'orange', 'cyan', 'red', 'lime']
 index = 0
 for N in Ns:
-    with open("../output/positionN" + str(N) +"K3.txt", 'r') as file:
+    with open("../output/orderPositionN" + str(N) +"K3.txt", 'r') as file:
         lines = file.readlines()
 
     particles_data = {}
