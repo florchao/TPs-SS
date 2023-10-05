@@ -1,8 +1,10 @@
 package src;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 public class MainEx2 {
     private static final double r = 2.25;
@@ -19,12 +21,10 @@ public class MainEx2 {
         int k = Integer.parseInt(args[1]);
         String outputFile = "output/positionN" + N;
 
-        FileGenerator fileGenerator = new FileGenerator();
-
         dt = Math.pow(10, -k);
-        fileGenerator.generateStaticFile("input/StaticN" + N + ".txt", r, N, mass, L);
-        Parameters parameters = ParticleGenerator.generateParticles("input/StaticN" + N + ".txt");
-        fileGenerator.writeOutput(outputFile + "K" + k + ".txt", parameters.getParticles(), 0.0);
+        generateStaticFile("input/StaticN" + N + ".txt", r, N, mass, L);
+        Parameters parameters = generateParticles("input/StaticN" + N + ".txt");
+        writeOutput(outputFile + "K" + k + ".txt", parameters.getParticles(), 0.0);
 
         createCollision(parameters.getParticles(), dt);
 
@@ -37,11 +37,10 @@ public class MainEx2 {
             setParticles(gear());
             totalTime+=dt;
             if (frames == itPerFrame) {
-                fileGenerator.writeOutput(outputFile + "K" + k + ".txt", getParticles(), totalTime);
+                writeOutput(outputFile + "K" + k + ".txt", getParticles(), totalTime);
                 frames = 0;
             }
             t += dt;
-
         }
     }
 
@@ -70,7 +69,6 @@ public class MainEx2 {
 
             aux.add(particle);
         }
-
         return aux;
     }
 
@@ -98,7 +96,6 @@ public class MainEx2 {
         double r2p = r2 + r3 * dt + r4 * Math.pow(dt, 2) / 2 + r5 * Math.pow(dt, 3) / 6;
         double r3p = r3 + r4 * dt + r5 * Math.pow(dt, 2) / 2;
         double r4p = r4 + r5 * dt;
-
         return new double[]{rp % L, r1p, r2p, r3p, r4p, r5, rpNoPeriodic};
 
     }
@@ -118,4 +115,108 @@ public class MainEx2 {
         setParticles(particles);
         setDt(dt);
     }
+
+    public static void generateStaticFile(String staticFileName, double particleRadius, int n, double mass, double lineLength) throws IOException {
+        Random random = new Random();
+        if (n >= 25) {
+            File file = new File(staticFileName);
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+
+            PrintWriter staticWriter = new PrintWriter(new FileWriter(file));
+            staticWriter.printf("0.0\n");
+
+            List<Particle> particles = new ArrayList<>();
+            double requiredSpacing = 2 * particleRadius;
+
+            double unusedSpace = lineLength - (requiredSpacing * n);
+            double spacing = unusedSpace > 0 ? unusedSpace / (n - 1) : 0;
+
+            for (int i = 0; i < n; i++) {
+                double x = i * (requiredSpacing + spacing);
+                double u = random.nextDouble(9,12);
+
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\n", x, u, u, particleRadius, mass);
+
+                particles.add(new Particle(i, x, u, u, particleRadius, mass, 0.0, 0.0, x));
+            }
+
+            staticWriter.close();
+        } else {
+            File file = new File(staticFileName);
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+
+            PrintWriter staticWriter = new PrintWriter(new FileWriter(file));
+            staticWriter.printf("0.0\n");
+
+            List<Particle> particles = new ArrayList<>();
+
+            for (int i = 0; i < n; i++) {
+                double x = random.nextDouble() * lineLength;
+                boolean isOverlap;
+
+                do {
+                    isOverlap = false;
+                    for (Particle existingParticle : particles) {
+                        double distance = Math.abs(x - existingParticle.getX());
+                        if (distance < 2 * particleRadius) {
+                            isOverlap = true;
+                            x = random.nextDouble() * lineLength;
+                            break;
+                        }
+                    }
+                } while (isOverlap);
+
+                double u = random.nextDouble(9,12);
+                staticWriter.printf("%f\t%f\t%f\t%f\t%f\n", x, u, u, particleRadius, mass);
+                particles.add(new Particle(i, x, u, u, particleRadius, mass, 0.0, 0.0, x));
+            }
+
+            staticWriter.close();
+        }
+    }
+
+    public static void writeOutput(String fileName, List<Particle> particles, double time) throws IOException {
+        PrintWriter outputWriter = new PrintWriter(new FileWriter(fileName, true));
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(time).append("\n");
+        for(Particle particle : particles) {
+            stringBuilder.append(String.format(Locale.US ,"%d\t%f\t%f\t%f\t%f\t%f\n",
+                    particle.getId(),
+                    particle.getX(),
+                    particle.getVx(),
+                    particle.getFx(),
+                    particle.getFy(),
+                    particle.getR()));
+        }
+        outputWriter.write(stringBuilder.toString());
+        outputWriter.close();
+    }
+
+    public static Parameters generateParticles(String staticFileName) throws IOException {
+        Parameters parameters = new Parameters();
+        parameters.setParticles(new ArrayList<>());
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(staticFileName))) {
+            String line;
+            reader.readLine();
+            int j = 0;
+            while ((line = reader.readLine()) != null) {
+                j++;
+                String[] values = line.split("\t");
+                double[] aux = new double[values.length];
+                for (int i = 0; i < values.length; i++) {
+                    aux[i] = Double.parseDouble(values[i]);
+                }
+                parameters.addParticle(new Particle(j, aux[0], aux[1], aux[2], aux[3], aux[4], 0.0, 0.0, aux[1]));
+            }
+        }
+        return parameters;
+    }
+
 }

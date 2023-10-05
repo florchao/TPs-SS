@@ -1,7 +1,6 @@
 package src;
 
 public class ParticleOscilator {
-
         private double x;
         private double y;
         private double m;
