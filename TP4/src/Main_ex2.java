@@ -1,10 +1,7 @@
 package src;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 public class Main_ex2 {
     private static final double r = 2.25;
@@ -14,19 +11,21 @@ public class Main_ex2 {
     private static final double mass = 25;
     private static final double tf = 180.01;
     private static List<Particle> particles;
+    private static List<Particle> auxParticles;
+
     private static double dt = 0;
     public static void main(String[] args) throws IOException {
 
         int N = Integer.parseInt(args[0]);
         int k = Integer.parseInt(args[1]);
-        String outputFile = "output/positionN" + N;
+        String outputFile = "output/realPositionN" + N;
 
         dt = Math.pow(10, -k);
-        generateStaticFile("input/StaticN" + N + ".txt", r, N, mass, L);
-        generateParticles("input/StaticN" + N + ".txt");
-        writeOutput(outputFile + "K" + k + ".txt", getParticles(), 0.0);
+        generateStaticFile("input/realStaticN" + N + ".txt", r, N, mass, L);
+        generateParticles("input/realStaticN" + N + ".txt");
+        writeOutput(outputFile + "K" + k + ".txt", getAuxParticles(), 0.0);
 
-        createCollision(getParticles(), dt);
+        createCollision(getAuxParticles(), dt);
 
         double t = dt;
         double totalTime = 0;
@@ -104,6 +103,10 @@ public class Main_ex2 {
         Main_ex2.particles = particles;
     }
 
+    public static void setAuxParticles(List<Particle> particles) {
+        Main_ex2.auxParticles = particles;
+    }
+
     public static void setDt(double dt) {
         Main_ex2.dt = dt;
     }
@@ -111,9 +114,48 @@ public class Main_ex2 {
     public static List<Particle> getParticles() {
         return particles;
     }
+
+    public static List<Particle> getAuxParticles() {
+        return auxParticles;
+    }
     private static void createCollision(List<Particle> particles, double dt){
         setParticles(particles);
         setDt(dt);
+    }
+
+    public static void generateStaticFileForEx3(String staticFileName, double particleRadius, int n, double mass, double lineLength) throws IOException {
+        File file = new File(staticFileName);
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+
+        PrintWriter staticWriter = new PrintWriter(new FileWriter(file));
+        staticWriter.printf("0.0\n");
+
+        List<Particle> particles = new ArrayList<>();
+        double requiredSpacing = 2 * particleRadius;
+
+        double unusedSpace = lineLength - (requiredSpacing * n);
+        double spacing = unusedSpace > 0 ? unusedSpace / (n - 1) : 0;
+        List<Double> doubleList = Arrays.asList(
+                9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9,
+                10.0, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9,
+                11.0, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 11.9
+        );
+
+        ArrayList<Double> u = new ArrayList<>(doubleList);
+
+        Integer aux = Math.floorDiv(u.size(), n);
+        for (int i = 0; i < n; i++) {
+            double x = i * (requiredSpacing + spacing);
+
+            staticWriter.printf("%f\t%f\t%f\t%f\t%f\n", x, u.get(i*aux), u.get(i*aux), particleRadius, mass);
+
+            particles.add(new Particle(i, x, u.get(i*aux), u.get(i*aux), particleRadius, mass, 0.0, x));
+        }
+
+        staticWriter.close();
     }
 
     public static void generateStaticFile(String staticFileName, double particleRadius, int n, double mass, double lineLength) throws IOException {
@@ -198,7 +240,7 @@ public class Main_ex2 {
     }
 
     public static void generateParticles(String staticFileName) throws IOException {
-        setParticles(new ArrayList<>());
+        setAuxParticles(new ArrayList<>());
 
         try (BufferedReader reader = new BufferedReader(new FileReader(staticFileName))) {
             String line;
@@ -211,12 +253,12 @@ public class Main_ex2 {
                 for (int i = 0; i < values.length; i++) {
                     aux[i] = Double.parseDouble(values[i]);
                 }
-                addParticle(new Particle(j, aux[0], aux[1], aux[2], aux[3], aux[4], 0.0, aux[1]));
+                addAuxParticle(new Particle(j, aux[0], aux[1], aux[2], aux[3], aux[4], 0.0, aux[1]));
             }
         }
     }
 
-    public static void addParticle(Particle particle) {
-        particles.add(particle);
+    public static void addAuxParticle(Particle particle) {
+        auxParticles.add(particle);
     }
 }

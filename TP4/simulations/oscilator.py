@@ -1,28 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-A = 1.0
-m = 70.0
-k = 10000
-gamma = 100.0
-
-
 def calculate(t):
-    return A * (np.exp(-(gamma / (2 * m)) * t)) * (np.cos(np.power((k / m) - (gamma * gamma / (4 * (m * m))), 0.5) * t))
-
-
-def draw(rV, positionV, timeV, rG, positionG, timeG, rB, positionB, timeB):
-
-    plt.plot(timeV, positionV, color = "magenta")
-    plt.plot(timeB, positionB, color = "purple", linestyle='dashed')
-    plt.plot(timeG, positionG, color = "orange")
-    plt.plot(timeV, rV, color = "green", linestyle='dashdot')
-    plt.xlabel("Tiempo (s)")
-    plt.ylabel("Posición (m)")
-    plt.legend(["Verlet", "Beeman", "Gear", "Analítico"])
-    plt.rcParams.update({'font.size': 24})
-    plt.show()
-
+    return 1.0 * (np.exp(-(100.0 / (2 * 70.0)) * t)) * (np.cos(np.power((10000 / 70.0) - (100.0 * 100.0 / (4 * (70.0 * 70.0))), 0.5) * t))
 
 def parseParams(file):
     with open(file) as statesFile:
@@ -48,7 +28,13 @@ def parseParams(file):
 rV, positionV, timeV, errorV = parseParams("../output/Verlet_1.txt")
 rG, positionG, timeG, errorG = parseParams("../output/Gear_1.txt")
 rB, positionB, timeB, errorB = parseParams("../output/Beeman_1.txt")
-draw(rV, positionV, timeV, rG, positionG, timeG, rB, positionB, timeB)
-print("Error cuadratico Verlet: ", errorV)
-print("Error cuadratico Gear: ", errorG)
-print("Error cuadratico Beeman: ", errorB)
+
+plt.plot(timeV, positionV, color = "magenta")
+plt.plot(timeB, positionB, color = "purple", linestyle='dashed')
+plt.plot(timeG, positionG, color = "orange")
+plt.plot(timeV, rV, color = "lime", linestyle='dashdot')
+plt.xlabel("Tiempo (s)")
+plt.ylabel("Posición (m)")
+plt.legend(["Verlet", "Beeman", "Gear", "Analítico"])
+plt.rcParams.update({'font.size': 24})
+plt.show()

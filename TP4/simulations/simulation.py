@@ -18,10 +18,10 @@ def parseParams(frame_file):
             if len(line_info) > 1:
                 frame_lines.append(line_info)
             elif len(line_info) == 1:
-                df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "vx", "fx","fy", "radius"])
+                df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "vx", "fx", "radius"])
                 frames.append(df)
                 frame_lines = []
-        df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "vx", "fx","fy", "radius"])
+        df = pd.DataFrame(np.array(frame_lines), columns=["id", "x", "vx", "fx", "radius"])
         frames.append(df)
     return frames
 

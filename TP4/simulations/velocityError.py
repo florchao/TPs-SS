@@ -5,24 +5,24 @@ def parseParams(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
-    particles_data = {}
+    particles = {}
     time = None
     for line in lines:
         data = line.split("\t")
         if len(data) == 1:
             time = float(data[0])
-            particles_data[time] = []
+            particles[time] = []
         else:
             particle = {
                 'vx': float(data[2]),
             }
 
-            particles_data[time].append(particle)
+            particles[time].append(particle)
 
-    return particles_data
+    return particles
 
 Ns = [5, 10, 15, 20, 25, 30]
-particles_data = {}
+particles = {}
 arrayVels = {}
 
 for N in Ns:
@@ -41,9 +41,9 @@ for N in Ns:
 
         velProms.append(vels/N)
 
-    particles_data[N] = velProms
+    particles[N] = velProms
 
-proms = {N: sum(vels) / len(vels) for N, vels in particles_data.items()}
+proms = {N: sum(vels) / len(vels) for N, vels in particles.items()}
 auxProms = list(proms.values())
 
 aux_prom = []
@@ -59,5 +59,6 @@ plt.errorbar(Ns, aux_prom, yerr=error, fmt='o', color='purple', capsize=6)
 
 plt.xlabel('N')
 plt.ylabel('Velocidad Promedio ($\\frac{{\mathrm{cm}}}{{\mathrm{s}}})$')
+plt.rcParams.update({'font.size': 24})
 plt.show()
 

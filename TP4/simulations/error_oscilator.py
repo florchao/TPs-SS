@@ -11,22 +11,6 @@ GAMMA = 100.0
 def calculate(t):
     return A * (np.exp(-(GAMMA / (2 * M)) * t)) * (np.cos(np.power((K / M) - (GAMMA * GAMMA / (4 * (M * M))), 0.5) * t))
 
-
-def draw(deltas, errorsV, errorsG, errorsB):
-
-    plt.plot(deltas, errorsV, "o-", label="Verlet", color = "pink")
-    plt.plot(deltas, errorsB, "o-", label="Beeman", color = "purple")
-    plt.plot(deltas, errorsG, "o-", label="Gear", color = "orange")
-
-    plt.yscale("log")
-    plt.xscale("log")
-    plt.legend()
-    plt.ylabel(r"Error cuadrático medio ($m^2$)")
-    plt.xlabel(r'$\Delta$t (s)')
-    plt.rcParams.update({'font.size': 24})
-    plt.show()
-
-
 def parseParams(file):
     with open(file) as statesFile:
         statesLines = statesFile.readlines()
@@ -49,29 +33,35 @@ def parseParams(file):
     return error
 
 
-if __name__ == '__main__':
-    deltas= [0.00001, 0.00005, 0.0001, 0.0005, 0.001, 0.005]
+deltas= [0.00001, 0.00005, 0.0001, 0.0005, 0.001, 0.005]
 
-    errorsV = []
-    errorsG = []
-    errorsB = []
+errorsV = []
+errorsG = []
+errorsB = []
 
-    num_files = 0
+for filename in os.listdir("../output/"):
+    file_path = os.path.join("../output/", filename)
+    if os.path.isfile(file_path):
+        if file_path.__contains__('Beeman'):
+            errorsB.append(parseParams(file_path))
+        elif file_path.__contains__('Gear'):
+            errorsG.append(parseParams(file_path))
+        else:
+            errorsV.append(parseParams(file_path))
 
-    for filename in os.listdir("../output/"):
-        file_path = os.path.join("../output/", filename)
-        if os.path.isfile(file_path):
-            num_files += 1
-            if file_path.__contains__('Beeman'):
-                errorsB.append(parseParams(file_path))
-            elif file_path.__contains__('Gear'):
-                errorsG.append(parseParams(file_path))
-            else:
-                errorsV.append(parseParams(file_path))
+eV = np.sort(errorsV)
+eG = np.sort(errorsG)
+eB = np.sort(errorsB)
 
-    eV = np.sort(errorsV)
-    eG = np.sort(errorsG)
-    eB = np.sort(errorsB)
+plt.plot(deltas, eV, "o-", label="Verlet", color = "pink")
+plt.plot(deltas, eB, "o-", label="Beeman", color = "purple")
+plt.plot(deltas, eG, "o-", label="Gear", color = "orange")
 
-    draw(deltas, eV, eG, eB)
+plt.yscale("log")
+plt.xscale("log")
+plt.legend()
+plt.ylabel(r"Error cuadrático medio ($m^2$)")
+plt.xlabel(r'$\Delta$t (s)')
+plt.rcParams.update({'font.size': 24})
+plt.show()
 

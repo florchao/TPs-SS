@@ -4,10 +4,10 @@ Ns = [5,10,15,20,25,30]
 colors = ['purple', 'magenta', 'orange', 'cyan', 'red', 'lime']
 index = 0
 for N in Ns:
-    with open("../output/orderPositionN" + str(N) +"K3.txt", 'r') as file:
+    with open("../output/positionN" + str(N) +"K3.txt", 'r') as file:
         lines = file.readlines()
 
-    particles_data = {}
+    particles = {}
     time = None
 
     for line in lines:
@@ -15,20 +15,20 @@ for N in Ns:
 
         if len(data) == 1:
             time = float(data[0])
-            particles_data[time] = []
+            particles[time] = []
         else:
             particle = {
                 'vx': float(data[2]),
             }
-            particles_data[time].append(particle)
+            particles[time].append(particle)
     aux = []
-    for i in particles_data.keys():
-        vel_difference = 0
+    for i in particles.keys():
+        diff = 0
 
-        for current_particle in particles_data[i]:
-            vel_difference += current_particle['vx']
+        for current_particle in particles[i]:
+            diff += current_particle['vx']
 
-        aux.append(vel_difference/N)
+        aux.append(diff/N)
 
     plt.plot([i * 0.1 for i in range(0, 1801)], aux, linestyle='-', color=colors[index],label=f'N = {N}')
     index += 1
