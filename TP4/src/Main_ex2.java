@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-public class MainEx2 {
+public class Main_ex2 {
     private static final double r = 2.25;
     private static final double k = 2500;
     private static final double DT_MAX = 0.1;
@@ -23,10 +23,10 @@ public class MainEx2 {
 
         dt = Math.pow(10, -k);
         generateStaticFile("input/StaticN" + N + ".txt", r, N, mass, L);
-        Parameters parameters = generateParticles("input/StaticN" + N + ".txt");
-        writeOutput(outputFile + "K" + k + ".txt", parameters.getParticles(), 0.0);
+        generateParticles("input/StaticN" + N + ".txt");
+        writeOutput(outputFile + "K" + k + ".txt", getParticles(), 0.0);
 
-        createCollision(parameters.getParticles(), dt);
+        createCollision(getParticles(), dt);
 
         double t = dt;
         double totalTime = 0;
@@ -101,11 +101,11 @@ public class MainEx2 {
     }
 
     public static void setParticles(List<Particle> particles) {
-        MainEx2.particles = particles;
+        Main_ex2.particles = particles;
     }
 
     public static void setDt(double dt) {
-        MainEx2.dt = dt;
+        Main_ex2.dt = dt;
     }
 
     public static List<Particle> getParticles() {
@@ -198,9 +198,8 @@ public class MainEx2 {
         outputWriter.close();
     }
 
-    public static Parameters generateParticles(String staticFileName) throws IOException {
-        Parameters parameters = new Parameters();
-        parameters.setParticles(new ArrayList<>());
+    public static void generateParticles(String staticFileName) throws IOException {
+        setParticles(new ArrayList<>());
 
         try (BufferedReader reader = new BufferedReader(new FileReader(staticFileName))) {
             String line;
@@ -213,10 +212,12 @@ public class MainEx2 {
                 for (int i = 0; i < values.length; i++) {
                     aux[i] = Double.parseDouble(values[i]);
                 }
-                parameters.addParticle(new Particle(j, aux[0], aux[1], aux[2], aux[3], aux[4], 0.0, 0.0, aux[1]));
+                addParticle(new Particle(j, aux[0], aux[1], aux[2], aux[3], aux[4], 0.0, 0.0, aux[1]));
             }
         }
-        return parameters;
     }
 
+    public static void addParticle(Particle particle) {
+        particles.add(particle);
+    }
 }
