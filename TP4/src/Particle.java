@@ -13,11 +13,10 @@ public class Particle implements Comparable<Particle> {
     private double r;
     private double m;
     private double fX;
-    private double fY;
     private double vx;
     private double u;
 
-    public Particle(int id, double x, double vx, double u, double r, double m, double fX, double fY, double realX) {
+    public Particle(int id, double x, double vx, double u, double r, double m, double fX, double realX) {
         this.id = id;
         this.x = x;
         this.realX = realX;
@@ -26,14 +25,13 @@ public class Particle implements Comparable<Particle> {
         this.vx = vx;
         this.u = u;
         this.fX = fX;
-        this.fY = fY;
         this.x2 = 0;
         this.x3 = 0;
         this.x4 = 0;
         this.x5 = 0;
     }
 
-    public Particle(int id, double x, double vx, double u, double r, double m, double fX, double fY, double x2, double x3, double x4, double x5, double realX) {
+    public Particle(int id, double x, double vx, double u, double r, double m, double fX, double x2, double x3, double x4, double x5, double realX) {
         this.id = id;
         this.x = x;
         this.r = r;
@@ -41,7 +39,6 @@ public class Particle implements Comparable<Particle> {
         this.vx = vx;
         this.u = u;
         this.fX = fX;
-        this.fY = fY;
         this.realX = realX;
         this.x2 = x2;
         this.x3 = x3;
@@ -64,16 +61,8 @@ public class Particle implements Comparable<Particle> {
         return r;
     }
 
-    public void setR(double r) {
-        this.r = r;
-    }
-
     public double getM() {
         return m;
-    }
-
-    public void setM(double m) {
-        this.m = m;
     }
 
     public double getVx() {
@@ -86,10 +75,6 @@ public class Particle implements Comparable<Particle> {
 
     public double getU() {
         return u;
-    }
-
-    public void setU(double u) {
-        this.u = u;
     }
 
     public double getX2() {
@@ -128,24 +113,8 @@ public class Particle implements Comparable<Particle> {
         return fX;
     }
 
-    public void setFx(double fX) {
-        this.fX = fX;
-    }
-
-    public double getFy() {
-        return fY;
-    }
-
-    public void setFy(double fY) {
-        this.fY = fY;
-    }
-
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public double getRealX() {

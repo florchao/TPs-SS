@@ -47,7 +47,7 @@ public class Main_ex2 {
     private static List<Particle> gear() {
         List<Particle> aux = new ArrayList<>();
         for(Particle p1 : particles) {
-            Particle particle = new Particle(p1.getId(), p1.getX(), p1.getVx(), p1.getU(), p1.getR(), p1.getM(), p1.getFx(), p1.getFy(), p1.getX2(), p1.getX3(), p1.getX4(), p1.getX5(), p1.getRealX());
+            Particle particle = new Particle(p1.getId(), p1.getX(), p1.getVx(), p1.getU(), p1.getR(), p1.getM(), p1.getFx(), p1.getX2(), p1.getX3(), p1.getX4(), p1.getX5(), p1.getRealX());
 
             double[] predictionPositionX = gearPredictor(particle.getX()%L, p1.getVx(), p1.getX2(), p1.getX3(), p1.getX4(), p1.getX5(), particle.getRealX());
 
@@ -140,7 +140,7 @@ public class Main_ex2 {
 
                 staticWriter.printf("%f\t%f\t%f\t%f\t%f\n", x, u, u, particleRadius, mass);
 
-                particles.add(new Particle(i, x, u, u, particleRadius, mass, 0.0, 0.0, x));
+                particles.add(new Particle(i, x, u, u, particleRadius, mass, 0.0, x));
             }
 
             staticWriter.close();
@@ -174,7 +174,7 @@ public class Main_ex2 {
 
                 double u = random.nextDouble(9,12);
                 staticWriter.printf("%f\t%f\t%f\t%f\t%f\n", x, u, u, particleRadius, mass);
-                particles.add(new Particle(i, x, u, u, particleRadius, mass, 0.0, 0.0, x));
+                particles.add(new Particle(i, x, u, u, particleRadius, mass, 0.0, x));
             }
 
             staticWriter.close();
@@ -186,12 +186,11 @@ public class Main_ex2 {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(time).append("\n");
         for(Particle particle : particles) {
-            stringBuilder.append(String.format(Locale.US ,"%d\t%f\t%f\t%f\t%f\t%f\n",
+            stringBuilder.append(String.format(Locale.US ,"%d\t%f\t%f\t%f\t%f\n",
                     particle.getId(),
                     particle.getX(),
                     particle.getVx(),
                     particle.getFx(),
-                    particle.getFy(),
                     particle.getR()));
         }
         outputWriter.write(stringBuilder.toString());
@@ -212,7 +211,7 @@ public class Main_ex2 {
                 for (int i = 0; i < values.length; i++) {
                     aux[i] = Double.parseDouble(values[i]);
                 }
-                addParticle(new Particle(j, aux[0], aux[1], aux[2], aux[3], aux[4], 0.0, 0.0, aux[1]));
+                addParticle(new Particle(j, aux[0], aux[1], aux[2], aux[3], aux[4], 0.0, aux[1]));
             }
         }
     }
