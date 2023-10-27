@@ -3,6 +3,7 @@ package src;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import static src.Utils.*;
 
 public class Grid {
@@ -75,7 +76,7 @@ public class Grid {
         return particle.getPosition().getX() < leftLimitHole || particle.getPosition().getX() > rightLimitHole;
     }
 
-    public void updateForces() {
+    public void updateForces(double dt) {
         for (int row = 0; row < rowsTotal; row++) {
             for (int col = 0; col < cols; col++) {
                 List<Particle> neighbours = getNeighbours(row, col);
@@ -98,7 +99,17 @@ public class Grid {
                                     p.addToForce(getNormalForce(sumRad - diff, normalVersor, superpositionB));
 
                                     Pair relativeVelocity = p.getVelocity().subtract(n.getVelocity());
-                                    p.addToForce(getTangentialForce(sumRad - diff, relativeVelocity, normalVersor, superpositionB));
+                                    Pair aux = p.getAccumRealtiveVelocity().get(n);
+                                    Pair accum;
+                                    if ( aux == null){
+                                        accum = relativeVelocity;
+                                    } else {
+                                        accum = aux.sum(relativeVelocity);
+                                    }
+                                    p.setAccumRealtiveVelocity(accum,n);
+                                    p.addToForce(getTangentialForce(sumRad - diff, p.getAccumRealtiveVelocity().get(n), normalVersor, superpositionB, dt));
+                                } else {
+                                  p.setAccumRealtiveVelocity(Pair.ZERO, n);
                                 }
                             });
 
@@ -122,10 +133,12 @@ public class Grid {
 
                                             Pair relativeVelocity = p.getVelocity().subtract(n.getVelocity());
 
-                                            Pair tangentialForce = getTangentialForce(superposition, relativeVelocity, normalVersor, superpositionB);
+                                            Pair tangentialForce = getTangentialForce(superposition, relativeVelocity, normalVersor, superpositionB, dt);
 
                                             p.addToForce(tangentialForce);
                                             n.addToForce(tangentialForce.scale(-1.0));
+                                        } else {
+                                            p.setAccumRealtiveVelocity(Pair.ZERO, n);
                                         }
                                     }
                             );
@@ -133,78 +146,92 @@ public class Grid {
                 );
 
                 if (row <= (rowsTotal - rowsInside)) //pared inferior con el agujero
-                    updateForceFloor(current);
+                    updateForceFloor(current, dt);
 
                 if (row == rowsTotal - 1)
                     updateForceTop(current);
 
                 if (col == 0)
-                    updateForceLeftWall(current);
+                    updateForceLeftWall(current, dt);
 
                 if (col == cols - 1)
-                    updateForceRightWall(current);
+                    updateForceRightWall(current, dt);
 
             }
         }
     }
 
-    private void updateForceFloor(List<Particle> particles) {
+    private void updateForceFloor(List<Particle> particles, double dt) {
         particles.forEach(p -> {
             if (outsideHole(p) && !p.isGone())
-                floorForce(p);
+                floorForce(p, dt);
         });
     }
-    private void floorForce(Particle p){
+    private void floorForce(Particle p, double dt){
         double superposition = p.getRadius() - (p.getPosition().getY() - bottomLeftLimitY);
         if (superposition > ZERO) {
             Pair auxVelocity = p.getVelocity();
-            double superpositionB = auxVelocity.getX() + auxVelocity.getY();
+            p.setFloorRelativeVelocity(p.getFloorRelativeVelocity().sum(p.getVelocity()));
+            double superpositionB = auxVelocity.getX() + auxVelocity.getY();;
             p.addToForce(
-                    getWallForce(superposition, p.getVelocity(), FloorNormalVersor, superpositionB)
+                    getWallForce(superposition, p.getFloorRelativeVelocity(), FloorNormalVersor, superpositionB, dt)
             );
+        } else {
+            p.setFloorRelativeVelocity(Pair.ZERO);
         }
     }
 
-    private void updateForceTop(List<Particle> particles) {
-        particles.forEach(this::topForce);
+    private void updateForceTop(List<Particle> particles, double dt) {
+        for (Particle p : particles) {
+            topForce(p, dt);
+        }
     }
 
-    private void topForce(Particle p){
+    private void topForce(Particle p, double dt){
         double superposition = p.getRadius() - (topRightLimitY - p.getPosition().getY());
         if (superposition > ZERO) {
             Pair auxVelocity = p.getVelocity();
             double superpositionB = auxVelocity.getX() + auxVelocity.getY();
                     p.addToForce(
-                            getWallForce(superposition, p.getVelocity(), TopNormalVector, superpositionB)
+                            getWallForce(superposition, p.getVelocity(), TopNormalVector, superpositionB, dt)
                     );
         }
     }
 
-    private void updateForceLeftWall(List<Particle> particles) {
-        particles.forEach(this::leftForce);
-    }
-    private void leftForce(Particle p){
+    private void updateForceLeftWall(List<Particle> particles, double dt) {
+        for (Particle p : particles) {
+            leftForce(p, dt);
+        }    }
+    private void leftForce(Particle p, double dt){
         double superposition = p.getRadius() - (p.getPosition().getX() - bottomLeftLimitX);
         if (superposition > ZERO) {
             Pair auxVelocity = p.getVelocity();
+            p.setLeftRelativeVelocity(p.getLeftRelativeVelocity().sum(p.getVelocity()));
             double superpositionB = auxVelocity.getX() + auxVelocity.getY();
             p.addToForce(
-                    getWallForce(superposition, p.getVelocity(), LeftNormalVector, superpositionB)
+                    getWallForce(superposition, p.getLeftRelativeVelocity(), LeftNormalVector, superpositionB, dt)
             );
+        } else {
+            p.setLeftRelativeVelocity(Pair.ZERO);
         }
     }
 
-    private void updateForceRightWall(List<Particle> particles) {
-        particles.forEach(this::rightForce);
+    private void updateForceRightWall(List<Particle> particles, double dt) {
+        for (Particle p : particles) {
+            rightForce(p, dt);
+        }
     }
-    private void rightForce(Particle p){
+    private void rightForce(Particle p, double dt){
         double superposition = p.getRadius() - (topRightLimitX - p.getPosition().getX());
         if (superposition > ZERO) {
             Pair auxVelocity = p.getVelocity();
+            p.setRightRelativeVelocity(p.getRightRelativeVelocity().sum(p.getVelocity()));
             double superpositionB = auxVelocity.getX() + auxVelocity.getY();
             p.addToForce(
-                    getWallForce(superposition, p.getVelocity(), RightNormalVector, superpositionB)
+                    getWallForce(superposition, p.getVelocity(), RightNormalVector, superpositionB, dt)
             );
+        } else {
+            p.setRightRelativeVelocity(Pair.ZERO);
         }
     }
 

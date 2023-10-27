@@ -65,12 +65,12 @@ public class GranularSystem implements Runnable{
             for (int j = 0; j < grid.update(); j++)
                 times.add(i * dt);
 
-            grid.updateForces();
+            grid.updateForces(dt);
 
             particles.forEach(Particle::correction);
 
             particles.forEach(Particle::resetForce);
-            grid.updateForces();
+            grid.updateForces(dt);
 
             if (i % 100 == 0) {
                 if (i % 100000 == 0)

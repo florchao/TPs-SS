@@ -1,11 +1,20 @@
 package src;
 
 import java.awt.*;
-import java.util.Objects;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static src.Utils.GRAVITY;
 
 public class Particle {
+
+    private Map<Particle, Pair> accumRealtiveVelocity = new ConcurrentHashMap<>(); // or another suitable modifiable map
+    private Pair floorRelativeVelocity = Pair.ZERO;
+    private Pair rightRelativeVelocity = Pair.ZERO;
+    private Pair leftRelativeVelocity = Pair.ZERO;
+    private Pair topRelativeVelocity = Pair.ZERO;
+
     private static final double ZERO = 0.0;
     private final static double B = (2.0 / 3.0);
     private final static double C = -(1.0 / 6.0);
@@ -161,5 +170,45 @@ public class Particle {
 
     public void setGone(boolean gone) {
         this.gone = gone;
+    }
+
+    public Map<Particle, Pair> getAccumRealtiveVelocity() {
+        return accumRealtiveVelocity;
+    }
+
+    public void setAccumRealtiveVelocity(Pair velocity, Particle particle) {
+        this.accumRealtiveVelocity.putIfAbsent(particle, velocity);
+    }
+
+    public void setFloorRelativeVelocity(Pair floorRelativeVelocity) {
+        this.floorRelativeVelocity = floorRelativeVelocity;
+    }
+
+    public void setRightRelativeVelocity(Pair rightRelativeVelocity) {
+        this.rightRelativeVelocity = rightRelativeVelocity;
+    }
+
+    public void setLeftRelativeVelocity(Pair leftRelativeVelocity) {
+        this.leftRelativeVelocity = leftRelativeVelocity;
+    }
+
+    public void setTopRelativeVelocity(Pair topRelativeVelocity) {
+        this.topRelativeVelocity = topRelativeVelocity;
+    }
+
+    public Pair getFloorRelativeVelocity() {
+        return floorRelativeVelocity;
+    }
+
+    public Pair getRightRelativeVelocity() {
+        return rightRelativeVelocity;
+    }
+
+    public Pair getLeftRelativeVelocity() {
+        return leftRelativeVelocity;
+    }
+
+    public Pair getTopRelativeVelocity() {
+        return topRelativeVelocity;
     }
 }
