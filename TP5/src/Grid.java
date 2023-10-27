@@ -6,10 +6,10 @@ import java.util.List;
 import static src.Utils.*;
 
 public class Grid {
-    private static final double A = 0.0015;
+    private static final double A = 0.15;
     private static final double ZERO = 0.0;
-    private static final double DIM_X = 0.2;
-    private static final double DIM_Y = 0.77; // se tiene en cuenta el espacio fuera de la "caja"
+    private static final double DIM_X = 20;
+    private static final double DIM_Y = 77; // se tiene en cuenta el espacio fuera de la "caja"
     private static final int cols = 8;
     private static final int rowsInside = 30;
     private static final int rowsTotal = 33;
@@ -291,7 +291,7 @@ public class Grid {
                 do {
                     overlap = false;
                     particle.getPosition().setX(particle.getRadius() + Math.random() * (DIM_X - 2.0 * particle.getRadius()));
-                    particle.getPosition().setY(0.4 + 0.7 / 10 + Math.random() * ((0.7 - 0.4) - particle.getRadius()));
+                    particle.getPosition().setY(40 + 70 / 10 + Math.random() * ((70 - 40) - particle.getRadius()));
                     c = getIndexX(particle.getPosition().getX());
                     r = getIndexY(particle.getPosition().getY());
 

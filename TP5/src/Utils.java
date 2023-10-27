@@ -6,8 +6,8 @@ import java.util.List;
 
 public class Utils {
 
-    private static final double MAX_RADIUS = 0.0115; // TODO: esto en que unidad esta? (en la consigna dice A=0.15cm)
-    private static final double MIN_RADIUS = 0.0085;
+    private static final double MAX_RADIUS = 1.15;
+    private static final double MIN_RADIUS = 0.85;
 
     public static List<Particle> generateParticles(Double W, Double L, int N, Double mass, Double dt) {
         List<Particle> particles = new ArrayList<>();
@@ -60,10 +60,10 @@ public class Utils {
             return false;
     }
 
-    public static final double K_NORMAL = 0.25;
-    public static final double GAMMA = 0.0025;
-    public static final double U = 0.0007;
-    public static final double GRAVITY = -0.05;
+    public static final double K_NORMAL = 250;
+    public static final double GAMMA = 2.5;
+    public static final double U = 0.07;
+    public static final double GRAVITY = -5;
 
     public static final double K_TAN = 2 * K_NORMAL;
 
