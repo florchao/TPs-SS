@@ -79,26 +79,26 @@ public class Utils {
     }
 
     //  (T.1)
-    public static double getTangencialForce(double superpositionA, double relativeTangencialVelocity, double superpositionB) {
-        double res1 = - U * Math.abs(getNormalForce(superpositionA, superpositionB)) * Math.signum(relativeTangencialVelocity);
-        double res2 = -K_TAN * (superpositionA) * (relativeTangencialVelocity);
+    public static double getTangentialForce(double superpositionA, double relativeTangentialVelocity, double superpositionB) {
+        double res1 = - U * Math.abs(getNormalForce(superpositionA, superpositionB)) * Math.signum(relativeTangentialVelocity);
+        double res2 = -K_TAN * (superpositionA) * (relativeTangentialVelocity);
         return Math.min(res1, res2);
     }
 
-    public static Pair getTangencialForce(double superpositionA, Pair relativeTangencialVelocity, Pair normalVersor, double superpositionB) {
+    public static Pair getTangentialForce(double superpositionA, Pair relativeTangentialVelocity, Pair normalVersor, double superpositionB) {
 
         Pair tan = new Pair(-normalVersor.getY(), normalVersor.getX());
 
-        double force = getTangencialForce(superpositionA, relativeTangencialVelocity.dot(tan), superpositionB);
+        double force = getTangentialForce(superpositionA, relativeTangentialVelocity.dot(tan), superpositionB);
 
         return tan.scale(force);
     }
 
-    public static Pair getWallForce(double superpositionA, Pair relativeTangencialVelocity, Pair normalVersor, double superpositionB) {
+    public static Pair getWallForce(double superpositionA, Pair relativeTangentialVelocity, Pair normalVersor, double superpositionB) {
 
         Pair tan = new Pair(-normalVersor.getY(), normalVersor.getX());
 
-        double forceT = getTangencialForce(superpositionA, relativeTangencialVelocity.dot(tan), superpositionB);
+        double forceT = getTangentialForce(superpositionA, relativeTangentialVelocity.dot(tan), superpositionB);
         double forceN = getNormalForce(superpositionA, superpositionB);
         return normalVersor.scale(forceN).sum(tan.scale(forceT));
     }

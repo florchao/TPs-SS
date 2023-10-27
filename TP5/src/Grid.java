@@ -98,7 +98,7 @@ public class Grid {
                                     p.addToForce(getNormalForce(sumRad - diff, normalVersor, superpositionB));
 
                                     Pair relativeVelocity = p.getVelocity().subtract(n.getVelocity());
-                                    p.addToForce(getTangencialForce(sumRad - diff, relativeVelocity, normalVersor, superpositionB));
+                                    p.addToForce(getTangentialForce(sumRad - diff, relativeVelocity, normalVersor, superpositionB));
                                 }
                             });
 
@@ -122,10 +122,10 @@ public class Grid {
 
                                             Pair relativeVelocity = p.getVelocity().subtract(n.getVelocity());
 
-                                            Pair tangencialForce = getTangencialForce(superposition, relativeVelocity, normalVersor, superpositionB);
+                                            Pair tangentialForce = getTangentialForce(superposition, relativeVelocity, normalVersor, superpositionB);
 
-                                            p.addToForce(tangencialForce);
-                                            n.addToForce(tangencialForce.scale(-1.0));
+                                            p.addToForce(tangentialForce);
+                                            n.addToForce(tangentialForce.scale(-1.0));
                                         }
                                     }
                             );
