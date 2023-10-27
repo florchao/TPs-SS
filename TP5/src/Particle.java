@@ -85,7 +85,7 @@ public class Particle {
     }
 
     public String toString() {
-        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + color;
+        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + color.getRed() + " " + color.getGreen() +  " " + color.getBlue() ;
     }
 
     public void setColor(Color color){
