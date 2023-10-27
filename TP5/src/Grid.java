@@ -149,7 +149,7 @@ public class Grid {
                     updateForceFloor(current, dt);
 
                 if (row == rowsTotal - 1)
-                    updateForceTop(current);
+                    updateForceTop(current, dt);
 
                 if (col == 0)
                     updateForceLeftWall(current, dt);
