@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Utils {
 
-    private static final double MAX_RADIUS = 0.0115;
+    private static final double MAX_RADIUS = 0.0115; // TODO: esto en que unidad esta? (en la consigna dice A=0.15cm)
     private static final double MIN_RADIUS = 0.0085;
 
     public static List<Particle> generateParticles(Double W, Double L, int N, Double mass, Double dt) {
@@ -56,7 +56,8 @@ public class Utils {
     public static boolean overlap(Particle p1, Particle p2) {
         if (!p1.equals(p2)) {
             return calculateDistance(p1, p2) < p1.getRadius() + p2.getRadius();
-        } else return false;
+        } else
+            return false;
     }
 
     public static final double K_NORMAL = 0.25;
@@ -65,9 +66,10 @@ public class Utils {
     public static final double K_TAN = 2 * K_NORMAL;
 
     public static double getNormalForce(double superposition) {
-        return -K_NORMAL * (superposition);
+        return -K_NORMAL * (superposition); // TODO: hay que cambiar esta ecuacion
     }
 
+    // TODO: esto tambien es lo otro que hay que cambiar
     public static Pair getNormalForce(double superposition, Pair versor) {
 
         double force = getNormalForce(superposition);
