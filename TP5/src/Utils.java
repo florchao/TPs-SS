@@ -61,7 +61,7 @@ public class Utils {
 
     public static final double K_NORMAL = 250;
     public static final double GAMMA = 2.5;
-    public static final double U = 0.07;
+    public static final double U = 0.7;
     public static final double GRAVITY = -5;
 
     public static final double K_TAN = 2 * K_NORMAL;
