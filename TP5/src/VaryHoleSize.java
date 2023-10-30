@@ -28,7 +28,7 @@ public class VaryHoleSize {
 
     public void run() throws InterruptedException {
 
-        double[] holeSizes = {4};
+        double[] holeSizes = {3,4,5,6};
 
         List<GranularSystem> systems = new ArrayList<>();
 

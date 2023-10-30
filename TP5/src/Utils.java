@@ -22,7 +22,6 @@ public class Utils {
 
             overlap = false;
 
-            // Check for overlap with existing particles
             for (Particle existingParticle : particles) {
                 double distance = calculateDistance(newParticle, existingParticle);
                 if (distance < newParticle.getRadius() + existingParticle.getRadius()) {
@@ -31,9 +30,7 @@ public class Utils {
                 }
             }
 
-            // If overlap detected, generate a new particle
             if (overlap) {
-                System.out.println("OVERLAP");
                 i--;
             } else {
                 particles.add(newParticle);
@@ -61,7 +58,7 @@ public class Utils {
 
     public static final double K_NORMAL = 250;
     public static final double GAMMA = 2.5;
-    public static final double U = 0.7;
+    public static final double U = 0.1;
     public static final double GRAVITY = -5;
 
     public static final double K_TAN = 2 * K_NORMAL;

@@ -15,12 +15,15 @@ def getTimes(path):
     return data
 
 
-x1 = getTimes('../output/times_F17.txt')
-x2 = getTimes('../output/times_F18.txt')
-x3 = getTimes('../output/times_F19.txt')
-x4 = getTimes('../output/times_F10.txt')
+x1 = getTimes('../output/times_F1.txt')
+x2 = getTimes('../output/times_F2.txt')
+x3 = getTimes('../output/times_F3.txt')
+x4 = getTimes('../output/times_F4.txt')
+x5 = getTimes('../output/times_F5.txt')
+x6 = getTimes('../output/times_F6.txt')
 
-for x, label, color in zip([x1, x2, x3, x4], ['5', '10', '15', '20'], colors):
+
+for x, label, color in zip([x1, x2, x3, x4, x5,x6], ['5', '10', '15', '20', '30', '50'], colors):
     count, limits = np.histogram(x, bins=1000)
 
     accumCount = np.cumsum(count)

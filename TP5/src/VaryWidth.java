@@ -27,7 +27,7 @@ public class VaryWidth {
 
     public void run() throws InterruptedException {
 
-        double[] frequencies = {20};
+        double[] frequencies = {5,10,15,20,30,50};
 
         List<GranularSystem> systems = new ArrayList<>();
 

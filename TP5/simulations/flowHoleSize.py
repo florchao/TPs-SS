@@ -17,10 +17,10 @@ def get_Qs(path):
     return Qs
 
 
-x1 = get_times('../output/times_F20.txt')
-x2 = get_times('../output/times_D14.txt')
-x3 = get_times('../output/times_D15.txt')
-x4 = get_times('../output/times_D16.txt')
+x1 = get_times('../output/times_D1.txt')
+x2 = get_times('../output/times_D2.txt')
+x3 = get_times('../output/times_D3.txt')
+x4 = get_times('../output/times_D4.txt')
 
 error_list = []
 
