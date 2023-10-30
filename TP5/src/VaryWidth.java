@@ -70,15 +70,6 @@ public class VaryWidth {
                     true
             );
         }
-
-        for (GranularSystem system :
-                systems) {
-            Ovito.writeListToFIle(
-                    system.getEnergy(),
-                    Ovito.createFile("energy_F", "txt"),
-                    true
-            );
-        }
     }
 
     public Double getW() {

@@ -67,15 +67,6 @@ public class VaryHoleSize {
                     true
             );
         }
-
-        for (GranularSystem system :
-                systems) {
-            Ovito.writeListToFIle(
-                    system.getEnergy(),
-                    Ovito.createFile("energy_D", "txt"),
-                    true
-            );
-        }
     }
 
     public Double getW() {
