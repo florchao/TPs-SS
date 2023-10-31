@@ -46,18 +46,6 @@ public class Ovito {
         writeParticlesToFileXyz(filePath, particles, fixedX, fixedY, "");
     }
 
-//    public static void writeParticlesToFileXyz(String filePath, List<Particle> particles) {
-//        try {
-//            FileWriter myWriter = new FileWriter(filePath, true);
-//            myWriter.write(particles.size() + "\n\n");
-//            for (Particle particle : particles)
-//                myWriter.write(particle.toString() + "\n");
-//            myWriter.close();
-//        } catch (IOException e) {
-//            throw new RuntimeException("Error writing particles to file (" + filePath + ") in ParticlesUtils.writeParticlesToFile.");
-//        }
-//    }
-
     public static <T> void writeListToFIle(List<T> list, String file_path, boolean end) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -74,16 +62,6 @@ public class Ovito {
             throw new RuntimeException(e);
         }
     }
-
-//    public static <T> void writeToFIle(T o, String file_path) {
-//        try {
-//            FileWriter myWriter = new FileWriter(file_path, true);
-//            myWriter.write(o.toString());
-//            myWriter.close();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
 
 }

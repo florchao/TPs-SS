@@ -42,10 +42,6 @@ public class Particle {
         forceY = ZERO;
     }
 
-    public double getEnergy(){
-        return Math.pow(this.velocity.module(Pair.ZERO), 2) * mass / 2.0;
-    }
-
     public void addToForce(double x, double y) {
         forceX = forceX + x;
         forceY = forceY + y;

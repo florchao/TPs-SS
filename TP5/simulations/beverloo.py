@@ -44,7 +44,7 @@ y = [beverloo(x_i, c) for x_i in x]
 
 plt.plot(x, y, color='magenta', label='Beverloo')
 plt.scatter([3 , 4 , 5 , 6 ], Qs, color='purple', label='Resultados')
-plt.ylabel('Caudal (partículas/s)')
+plt.ylabel('Caudal ($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
 plt.xlabel('Apertura (cm)')
 plt.legend()
 plt.show()

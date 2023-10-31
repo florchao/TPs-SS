@@ -19,8 +19,8 @@ x6 = getTimes('../output/times_F6.txt')
 
 errors = []
 
-plt.xlabel('Frecuencia (Hz)')
-plt.ylabel('Caudal (partícula/s)')
+plt.xlabel('Frecuencia ($\\frac{{\mathrm{rad}}}{{\mathrm{s}}})$')
+plt.ylabel('Caudal ($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
 
 for x, label in zip([x1, x2, x3, x4,x5,x6], ['5', '10', '15', '20', '30', '50']):
 
@@ -40,7 +40,6 @@ for x, label in zip([x1, x2, x3, x4,x5,x6], ['5', '10', '15', '20', '30', '50'])
 
     errors.append(error)
 
-#no me agrega la linea, no se porque
     plt.plot(int(label), Q, marker='o', linestyle='-', color='magenta')
     plt.errorbar(int(label), Q, yerr=error, label="w = " + label, color='purple')
 

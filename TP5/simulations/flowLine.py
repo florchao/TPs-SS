@@ -28,7 +28,7 @@ for x, label, color in zip([x1, x2, x3, x4, x5,x6], ['5', '10', '15', '20', '30'
 
     accumCount = np.cumsum(count)
 
-    plt.step(limits[:-1], accumCount, where='post', label=label + " Hz", color=color)
+    plt.step(limits[:-1], accumCount, where='post', label=label + '($\\frac{{\mathrm{rad}}}{{\mathrm{s}}})$', color=color)
 
 plt.xlabel('Tiempo (s)')
 plt.ylabel('Curva de descarga (particulas)')

@@ -25,7 +25,7 @@ x4 = get_times('../output/times_D4.txt')
 error_list = []
 
 plt.xlabel('Ancho de la apertura de salida (cm)')
-plt.ylabel('Caudal (partícula/s)')
+plt.ylabel('Caudal ($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
 
 for x, label in zip([x1, x2, x3, x4], ['3', '4', '5', '6']):
 

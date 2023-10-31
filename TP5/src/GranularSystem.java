@@ -17,7 +17,6 @@ public class GranularSystem implements Runnable{
     private final int iterations;
     private final String path;
     private final List<Double> times = new ArrayList<>();
-    private final List<Double> energy = new ArrayList<>();
 
     public GranularSystem(double l, double w, double dt, double d, double maxTime, double frequency, String outputFileName, List<Particle> particles) {
         this.dt = dt;
@@ -73,9 +72,6 @@ public class GranularSystem implements Runnable{
             grid.updateForces(dt);
 
             if (i % 100 == 0) {
-                if (i % 100000 == 0)
-                    System.out.println(hashCode() + ": iteración-" + i);
-                energy.add(particles.stream().mapToDouble(Particle::getEnergy).sum());
                 Ovito.writeParticlesToFileXyz(path, particles, limitsX, limitsY);
             }
         }
@@ -90,7 +86,4 @@ public class GranularSystem implements Runnable{
         return times.size() / (iterations * dt);
     }
 
-    public List<Double> getEnergy() {
-        return energy;
-    }
 }
