@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 radius = 1
-density = 0.33
+density = 1/3
 g = 5 ** 0.5
 
 def beverloo(x, c):
@@ -27,7 +27,7 @@ def getQs(path):
 Cs = [num / 100.0 for num in range(0, 200, 1)]
 Qs = getQs('../output/caudals_D1.txt')
 
-beverloo_err = [beverlooError(Qs, [ 3 + 2 * radius, 4 + 2 * radius, 5 + 2 * radius, 6 + 2 * radius], c) for c
+beverloo_err = [beverlooError(Qs, [ 3 , 4 , 5 , 6 ], c) for c
                 in Cs]
 plt.plot(Cs, beverloo_err, color='magenta')
 
@@ -43,7 +43,7 @@ x = [0.1 * i for i in range(20, 100)]
 y = [beverloo(x_i, c) for x_i in x]
 
 plt.plot(x, y, color='magenta', label='Beverloo')
-plt.scatter([3 + 2 * radius, 4 + 2 * radius, 5 + 2 * radius, 6 + 2 * radius], Qs, color='purple', label='Resultados')
+plt.scatter([3 , 4 , 5 , 6 ], Qs, color='purple', label='Resultados')
 plt.ylabel('Caudal (partículas/s)')
 plt.xlabel('Apertura (cm)')
 plt.legend()
