@@ -22,9 +22,13 @@ errors = []
 plt.xlabel('Frecuencia ($\\frac{{\mathrm{rad}}}{{\mathrm{s}}})$')
 plt.ylabel('Caudal ($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
 
-for x, label in zip([x1, x2, x3, x4,x5,x6], ['5', '10', '15', '20', '30', '50']):
+Qs = []
 
+fs = [5, 10, 15, 20, 30, 50]
+
+for x, label in zip([x1, x2, x3, x4,x5,x6], ['5', '10', '15', '20', '30', '50']):
     Q = (len(x))/(x[-1]-x[0])
+    Qs.append(Q)
 
     mean = np.mean(x)
 
@@ -40,7 +44,7 @@ for x, label in zip([x1, x2, x3, x4,x5,x6], ['5', '10', '15', '20', '30', '50'])
 
     errors.append(error)
 
-    plt.plot(int(label), Q, marker='o', linestyle='-', color='magenta')
-    plt.errorbar(int(label), Q, yerr=error, label="w = " + label, color='purple')
+plt.plot(fs, Qs, marker='o', linestyle='-', color='magenta')
+plt.errorbar(fs, Qs, yerr=errors, label="w = " + label, color='purple')
 
 plt.show()

@@ -27,6 +27,7 @@ error_list = []
 plt.xlabel('Ancho de la apertura de salida (cm)')
 plt.ylabel('Caudal ($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
 
+Qs = []
 for x, label in zip([x1, x2, x3, x4], ['3', '4', '5', '6']):
 
     Q = (len(x)) / (x[-1] - x[0])
@@ -44,7 +45,9 @@ for x, label in zip([x1, x2, x3, x4], ['3', '4', '5', '6']):
     error = S / np.sqrt(Sxx)
 
     error_list.append(error)
-    plt.errorbar(int(label), Q, yerr=error, label="D = " + label, color='purple')
-    plt.plot(int(label), Q, linestyle='-', marker='o', color='magenta')
+    Qs.append(Q)
+
+plt.plot(['3','4','5','6'], Qs, marker='o', linestyle='-', color='magenta')
+plt.errorbar(['3','4','5','6'], Qs, yerr=error_list, label="w = " + label, color='purple')
 
 plt.show()
