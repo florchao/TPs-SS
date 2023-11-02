@@ -25,7 +25,7 @@ x4 = get_times('../output/times_D4.txt')
 error_list = []
 
 plt.xlabel('Ancho de la apertura de salida (cm)')
-plt.ylabel('Caudal ($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
+plt.ylabel('Flow($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
 
 Qs = []
 for x, label in zip([x1, x2, x3, x4], ['3', '4', '5', '6']):
@@ -38,9 +38,9 @@ for x, label in zip([x1, x2, x3, x4], ['3', '4', '5', '6']):
     for i in range(len(x)):
         f.append(Q * x[i])
 
-    S = np.sqrt(np.sum((x-f)**2)/(len(x)-2))
+    S = np.sqrt(np.add((x-f)**2)/(len(x)-2))
 
-    Sxx = np.sum((x - x_mean)**2)
+    Sxx = np.add((x - x_mean)**2)
 
     error = S / np.sqrt(Sxx)
 

@@ -25,7 +25,7 @@ def getQs(path):
 
 
 Cs = [num / 100.0 for num in range(0, 200, 1)]
-Qs = getQs('../output/caudals_D1.txt')
+Qs = getQs('../output/Flows_D1.txt')
 
 beverloo_err = [beverlooError(Qs, [ 3 , 4 , 5 , 6 ], c) for c
                 in Cs]
@@ -44,7 +44,7 @@ y = [beverloo(x_i, c) for x_i in x]
 
 plt.plot(x, y, color='magenta', label='Beverloo')
 plt.scatter([3 , 4 , 5 , 6 ], Qs, color='purple', label='Resultados')
-plt.ylabel('Caudal ($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
+plt.ylabel('Flow($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
 plt.xlabel('Apertura (cm)')
 plt.legend()
 plt.show()

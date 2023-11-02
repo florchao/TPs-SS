@@ -26,7 +26,7 @@ x6 = getTimes('../output/times_F6.txt')
 for x, label, color in zip([x1, x2, x3, x4, x5,x6], ['5', '10', '15', '20', '30', '50'], colors):
     count, limits = np.histogram(x, bins=1000)
 
-    accumCount = np.cumsum(count)
+    accumCount = np.cumadd(count)
 
     plt.step(limits[:-1], accumCount, where='post', label=label + '($\\frac{{\mathrm{rad}}}{{\mathrm{s}}})$', color=color)
 

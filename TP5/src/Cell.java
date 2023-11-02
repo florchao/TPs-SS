@@ -11,8 +11,8 @@ public class Cell{
         particles.add(particle);
     }
 
-    public boolean remove(Particle particle){
-        return particles.remove(particle);
+    public void remove(Particle particle){
+        particles.remove(particle);
     }
 
     public List<Particle> getParticles() {

@@ -7,16 +7,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class VaryWidth {
+public class exercise_a {
     private final List<Particle> particleList;
     private final Double W;
     private final Double L;
     private final Double dt;
     private final Double maxTime;
-    private final  Double holeSize;
-    private Double bestFrequency;
+    private final Double holeSize;
+    private Double bestAngularFrequency;
 
-    public VaryWidth(List<Particle> particleList, Double w, Double l, Double dt, Double maxTime, Double holeSize) {
+    public exercise_a(List<Particle> particleList, Double w, Double l, Double dt, Double maxTime, Double holeSize) {
         this.particleList = particleList;
         W = w;
         L = l;
@@ -26,15 +26,13 @@ public class VaryWidth {
     }
 
     public void run() throws InterruptedException {
-
-        double[] frequencies = {5,10,15,20,30,50};
-
-        List<GranularSystem> systems = new ArrayList<>();
+        double[] frequencies = {5, 10, 15, 20, 30, 50};
+        List<Silo> systems = new ArrayList<>();
 
         ExecutorService executor = Executors.newFixedThreadPool(frequencies.length);
 
         for (double freq : frequencies) {
-            GranularSystem system = new GranularSystem(
+            Silo system = new Silo(
                     getL(),
                     getW(),
                     getDt(),
@@ -52,21 +50,20 @@ public class VaryWidth {
         if (!executor.awaitTermination(10, TimeUnit.HOURS))
             throw new IllegalStateException("Threads timeout");
 
-        List<Double> caudals = systems.stream().map(GranularSystem::getCaudal).collect(Collectors.toList());
+        List<Double> flows = systems.stream().map(Silo::getFlow).collect(Collectors.toList());
 
-        this.bestFrequency = caudals.get(caudals.indexOf(caudals.stream().max(Double::compareTo).get()));
+        this.bestAngularFrequency = flows.get(flows.indexOf(flows.stream().max(Double::compareTo).get()));
 
-        Ovito.writeListToFIle(
-                caudals,
-                Ovito.createFile("caudals_F", "txt"),
+        Utils.writeListToFile(
+                flows,
+                Utils.createFile("Flows_F", "txt"),
                 true
         );
 
-        for (GranularSystem system :
-                systems) {
-            Ovito.writeListToFIle(
+        for (Silo system : systems) {
+            Utils.writeListToFile(
                     system.getTimes(),
-                    Ovito.createFile("times_F", "txt"),
+                    Utils.createFile("times_F", "txt"),
                     true
             );
         }
@@ -92,7 +89,7 @@ public class VaryWidth {
         return holeSize;
     }
 
-    public Double getBestFrequency() {
-        return bestFrequency;
+    public Double getBestAngularFrequency() {
+        return bestAngularFrequency;
     }
 }

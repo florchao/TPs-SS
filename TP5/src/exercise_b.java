@@ -7,35 +7,31 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class VaryHoleSize {
-
+public class exercise_b {
     private final List<Particle> particleList;
     private final double freq;
-
     private final Double W;
     private final Double L;
     private final Double dt;
     private final Double maxTime;
 
-    public VaryHoleSize(List<Particle> particleList, double freq, Double w, Double l, Double dt, Double maxTime) {
+    public exercise_b(List<Particle> particleList, double freq, Double w, Double l, Double dt, Double maxTime) {
         this.particleList = particleList;
         this.freq = freq;
-        W = w;
-        L = l;
+        this.W = w;
+        this.L = l;
         this.dt = dt;
         this.maxTime = maxTime;
     }
 
     public void run() throws InterruptedException {
 
-        double[] holeSizes = {3,4,5,6};
-
-        List<GranularSystem> systems = new ArrayList<>();
-
+        double[] holeSizes = {3, 4, 5, 6};
+        List<Silo> systems = new ArrayList<>();
         ExecutorService executor = Executors.newFixedThreadPool(holeSizes.length);
 
         for (double holeSize : holeSizes) {
-            GranularSystem system = new GranularSystem(
+            Silo system = new Silo(
                     getL(),
                     getW(),
                     getDt(),
@@ -50,20 +46,17 @@ public class VaryHoleSize {
         }
 
         executor.shutdown();
-        if(!executor.awaitTermination(10, TimeUnit.HOURS))
+        if (!executor.awaitTermination(10, TimeUnit.HOURS)) {
             throw new IllegalStateException("Threads timeout");
+        }
 
-        Ovito.writeListToFIle(
-                systems.stream().map(GranularSystem::getCaudal).collect(Collectors.toList()),
-                Ovito.createFile("caudals_D", "txt"),
-                true
-        );
+        List<Double> flows = systems.stream().map(Silo::getFlow).collect(Collectors.toList());
+        Utils.writeListToFile(flows, Utils.createFile("Flows_D", "txt"), true);
 
-        for (GranularSystem system :
-                systems) {
-            Ovito.writeListToFIle(
+        for (Silo system : systems) {
+            Utils.writeListToFile(
                     system.getTimes(),
-                    Ovito.createFile("times_D", "txt"),
+                    Utils.createFile("times_D_" + system.getHoleSize(), "txt"),
                     true
             );
         }

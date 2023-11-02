@@ -2,63 +2,43 @@ package src;
 
 import java.awt.*;
 import java.util.*;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static src.Utils.GRAVITY;
 
 public class Particle {
 
-    private Map<Particle, Pair> accumRealtiveVelocity = new ConcurrentHashMap<>(); // or another suitable modifiable map
-    private Pair floorRelativeVelocity = Pair.ZERO;
-    private Pair rightRelativeVelocity = Pair.ZERO;
-    private Pair leftRelativeVelocity = Pair.ZERO;
-    private Pair topRelativeVelocity = Pair.ZERO;
-
     private static final double ZERO = 0.0;
-    private final static double B = (2.0 / 3.0);
-    private final static double C = -(1.0 / 6.0);
+    private static final double B = 2.0 / 3.0;
+    private static final double C = -1.0 / 6.0;
 
-    private Double forceX;
-    private Double forceY;
-
+    private final int id;
     private final Double radius;
     private final Double mass;
-    private final int id;
+    private final Double dt;
+    private final Double sqrDt;
+    private Coordinates position;
+    private Coordinates velocity;
+    private Coordinates prevAcceleration;
+    private Coordinates actualAcceleration;
+    private Coordinates actualVelocity;
+    private boolean gone = false;
     private boolean reInjected = false;
     private Color color;
 
-    private final Double dt;
-    private final Double sqrDt;
-    private Pair position;
-    private Pair velocity;
-    private Pair prevAcceleration;
-    private Pair actualAcceleration;
-    private Pair actualVelocity;
-    private boolean gone = false;
+    private double forceX;
+    private double forceY;
+    private Coordinates floorRelativeVelocity = Coordinates.ZERO;
+    private Coordinates rightRelativeVelocity = Coordinates.ZERO;
+    private Coordinates leftRelativeVelocity = Coordinates.ZERO;
 
-    public void resetForce() {
-        forceX = ZERO;
-        forceY = ZERO;
-    }
-
-    public void addToForce(double x, double y) {
-        forceX = forceX + x;
-        forceY = forceY + y;
-    }
-
-    public Particle(int id, Pair position, Double radius, Double mass, Double dt, Color color) {
+    public Particle(int id, Coordinates position, Double radius, Double mass, Double dt, Color color) {
         this.id = id;
         this.position = position;
         this.radius = radius;
         this.mass = mass;
-        this.forceX = ZERO;
-        this.forceY = ZERO;
-        this.velocity = new Pair(ZERO, ZERO);
+        this.velocity = new Coordinates(ZERO, ZERO);
         this.dt = dt;
         this.sqrDt = Math.pow(dt, 2);
-        actualAcceleration = new Pair(ZERO, ZERO);
-        prevAcceleration = new Pair(ZERO, GRAVITY);
+        this.actualAcceleration = new Coordinates(ZERO, ZERO);
+        this.prevAcceleration = new Coordinates(ZERO, Utils.GRAVITY);
         this.color = color;
     }
 
@@ -66,19 +46,28 @@ public class Particle {
         return new Particle(id, position, radius, mass, dt, color);
     }
 
-    public void addToForce(Pair pair) {
-        forceX = forceX + pair.getX();
-        forceY = forceY + pair.getY();
+    public void resetForce() {
+        this.forceX = ZERO;
+        this.forceY = ZERO;
     }
 
-    public Pair getAcceleration() {
-        Pair aux = new Pair(forceX, forceY);
-        return aux.scale(1.0 / mass);
+    public void addToForce(double x, double y) {
+        this.forceX += x;
+        this.forceY += y;
+    }
+
+    public void addToForce(Coordinates coordinates) {
+        this.forceX += coordinates.getX();
+        this.forceY += coordinates.getY();
+    }
+
+    public Coordinates getAcceleration() {
+        return new Coordinates(this.forceX, this.forceY).scale(1.0 / mass);
     }
 
     public void reInject() {
-        reInjected = true;
-        setColor(Color.RED);
+        this.reInjected = true;
+        this.setColor(Color.RED);
     }
 
     public Double getRadius() {
@@ -90,68 +79,63 @@ public class Particle {
     }
 
     public String toString() {
-        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + color.getRed() + " " + color.getGreen() +  " " + color.getBlue() ;
+        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + color.getRed() + " " + color.getGreen() + " " + color.getBlue();
     }
 
-    public void setColor(Color color){
+    public void setColor(Color color) {
         this.color = color;
     }
 
-    public Color getColor(){
+    public Color getColor() {
         return color;
     }
 
-    public Pair getPosition() {
+    public Coordinates getPosition() {
         return position;
     }
 
-    public Pair getVelocity() {
+    public Coordinates getVelocity() {
         return velocity;
     }
 
     public void prediction() {
-        actualAcceleration = this.getAcceleration();
-        this.position = position.sum(
-                velocity.scale(dt).sum(
-                        actualAcceleration.scale(B).sum(
-                                prevAcceleration.scale(C)
-                        ).scale(sqrDt)
+        this.actualAcceleration = this.getAcceleration();
+        this.position = this.position.add(this.velocity.scale(dt).add(
+                this.actualAcceleration.scale(B).add(
+                        this.prevAcceleration.scale(C)
+                ).scale(sqrDt)
+        ));
+
+        this.actualVelocity = this.velocity;
+
+        this.velocity = this.actualVelocity.add(
+                this.actualAcceleration.scale(1.5 * dt).add(
+                        this.prevAcceleration.scale(-0.5 * dt)
                 )
         );
-
-        this.actualVelocity = velocity;
-
-        this.velocity = this.actualVelocity.sum(
-                this.actualAcceleration.scale(1.5 * dt).sum(
-                        prevAcceleration.scale(-0.5 * dt)
-                )
-        );
-
     }
 
-    public void correction(){
-        if (reInjected){
-            this.velocity = new Pair(ZERO, ZERO);
+    public void correction() {
+        if (reInjected) {
+            this.velocity = Coordinates.ZERO;
             reInjected = false;
-            prevAcceleration = new Pair(ZERO, GRAVITY);
-        }else {
-            this.velocity = actualVelocity.sum(
-                    this.getAcceleration().scale((1.0 / 3.0) * dt).sum(
-                            actualAcceleration.scale((5.0 / 6.0) * dt).sum(
-                                    prevAcceleration.scale(-(1.0 / 6.0) * dt)
+            prevAcceleration = new Coordinates(ZERO, Utils.GRAVITY);
+        } else {
+            this.velocity = this.actualVelocity.add(
+                    this.getAcceleration().scale(1.0 / 3.0 * dt).add(
+                            this.actualAcceleration.scale(5.0 / 6.0 * dt).add(
+                                    this.prevAcceleration.scale(-(1.0 / 6.0) * dt)
                             )
                     )
             );
             prevAcceleration = actualAcceleration;
         }
-
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Particle)) return false;
-        Particle particle = (Particle) o;
+        if (!(o instanceof Particle particle)) return false;
         return id == particle.id;
     }
 
@@ -168,43 +152,27 @@ public class Particle {
         this.gone = gone;
     }
 
-    public Map<Particle, Pair> getAccumRealtiveVelocity() {
-        return accumRealtiveVelocity;
-    }
-
-    public void setAccumRealtiveVelocity(Pair velocity, Particle particle) {
-        this.accumRealtiveVelocity.putIfAbsent(particle, velocity);
-    }
-
-    public void setFloorRelativeVelocity(Pair floorRelativeVelocity) {
+    public void setFloorRelativeVelocity(Coordinates floorRelativeVelocity) {
         this.floorRelativeVelocity = floorRelativeVelocity;
     }
 
-    public void setRightRelativeVelocity(Pair rightRelativeVelocity) {
+    public void setRightRelativeVelocity(Coordinates rightRelativeVelocity) {
         this.rightRelativeVelocity = rightRelativeVelocity;
     }
 
-    public void setLeftRelativeVelocity(Pair leftRelativeVelocity) {
+    public void setLeftRelativeVelocity(Coordinates leftRelativeVelocity) {
         this.leftRelativeVelocity = leftRelativeVelocity;
     }
 
-    public void setTopRelativeVelocity(Pair topRelativeVelocity) {
-        this.topRelativeVelocity = topRelativeVelocity;
-    }
-
-    public Pair getFloorRelativeVelocity() {
+    public Coordinates getFloorRelativeVelocity() {
         return floorRelativeVelocity;
     }
 
-    public Pair getRightRelativeVelocity() {
+    public Coordinates getRightRelativeVelocity() {
         return rightRelativeVelocity;
     }
 
-    public Pair getLeftRelativeVelocity() {
+    public Coordinates getLeftRelativeVelocity() {
         return leftRelativeVelocity;
-    }
-
-    public Pair getTopRelativeVelocity() {
-        return topRelativeVelocity;
     }
 }
