@@ -19,8 +19,8 @@ x6 = getTimes('../output/timesF6.txt')
 
 errors = []
 
-plt.xlabel('Frecuencia ($\\frac{{\mathrm{rad}}}{{\mathrm{s}}})$')
-plt.ylabel('Flow($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
+plt.xlabel('w ($\\frac{{\mathrm{rad}}}{{\mathrm{s}}})$')
+plt.ylabel('Caudal($\\frac{{\mathrm{partícula}}}{{\mathrm{s}}})$')
 
 Qs = []
 
@@ -36,9 +36,9 @@ for x, label in zip([x1, x2, x3, x4,x5,x6], ['5', '10', '15', '20', '30', '50'])
     for i in range(len(x)):
         f.append(Q*x[i])
 
-    S = np.sqrt(np.add((x-f)**2)/(len(x)-2))
+    S = np.sqrt(np.sum((x-f)**2)/(len(x)-2))
 
-    Sxx = np.add((x - mean)**2)
+    Sxx = np.sum((x - mean)**2)
 
     error = S / np.sqrt(Sxx)
 
