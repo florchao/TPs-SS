@@ -10,10 +10,10 @@ def getTimes(path):
     return np.array(times)
 
 
-x1 = getTimes('../output/times_D1.txt')
-x2 = getTimes('../output/times_D2.txt')
-x3 = getTimes('../output/times_D3.txt')
-x4 = getTimes('../output/times_D4.txt')
+x1 = getTimes('../output/timesD1.txt')
+x2 = getTimes('../output/timesD2.txt')
+x3 = getTimes('../output/timesD3.txt')
+x4 = getTimes('../output/timesD4.txt')
 
 error_list = []
 

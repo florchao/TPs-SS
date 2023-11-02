@@ -39,7 +39,7 @@ public class exercise_a {
                     getHoleSize(),
                     getMaxTime(),
                     freq,
-                    "output_F_" + freq + "_",
+                    "outputF" + freq,
                     this.particleList
             );
             systems.add(system);
@@ -56,14 +56,14 @@ public class exercise_a {
 
         Utils.writeListToFile(
                 flows,
-                Utils.createFile("Flows_F", "txt"),
+                Utils.createFile("FlowsF", "txt"),
                 true
         );
 
         for (Silo system : systems) {
             Utils.writeListToFile(
                     system.getTimes(),
-                    Utils.createFile("times_F", "txt"),
+                    Utils.createFile("TimesF", "txt"),
                     true
             );
         }

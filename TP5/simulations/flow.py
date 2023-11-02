@@ -9,12 +9,12 @@ def getTimes(path):
 
     return np.array(times)
 
-x1 = getTimes('../output/times_F1.txt')
-x2 = getTimes('../output/times_F2.txt')
-x3 = getTimes('../output/times_F3.txt')
-x4 = getTimes('../output/times_F4.txt')
-x5 = getTimes('../output/times_F5.txt')
-x6 = getTimes('../output/times_F6.txt')
+x1 = getTimes('../output/timesF1.txt')
+x2 = getTimes('../output/timesF2.txt')
+x3 = getTimes('../output/timesF3.txt')
+x4 = getTimes('../output/timesF4.txt')
+x5 = getTimes('../output/timesF5.txt')
+x6 = getTimes('../output/timesF6.txt')
 
 
 errors = []

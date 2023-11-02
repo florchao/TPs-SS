@@ -20,10 +20,10 @@ public class Main {
 
         List<Particle> particleList = Utils.generateParticles(W, L, N, mass, dt);
 
-        exercise_a varyWidth = new exercise_a(particleList, W, L, dt, maxTime, holeSize);
-        varyWidth.run();
+        exercise_a varyW = new exercise_a(particleList, W, L, dt, maxTime, holeSize);
+        varyW.run();
 
-        exercise_b varyHoleSize = new exercise_b(particleList, varyWidth.getBestAngularFrequency(), W, L, dt, maxTime);
+        exercise_b varyHoleSize = new exercise_b(particleList, varyW.getBestAngularFrequency(), W, L, dt, maxTime);
         varyHoleSize.run();
     }
 }

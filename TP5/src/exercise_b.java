@@ -38,7 +38,7 @@ public class exercise_b {
                     holeSize,
                     getMaxTime(),
                     freq,
-                    "output_D_" + holeSize + "_",
+                    "outputD" + holeSize,
                     particleList
             );
             systems.add(system);
@@ -51,12 +51,12 @@ public class exercise_b {
         }
 
         List<Double> flows = systems.stream().map(Silo::getFlow).collect(Collectors.toList());
-        Utils.writeListToFile(flows, Utils.createFile("Flows_D", "txt"), true);
+        Utils.writeListToFile(flows, Utils.createFile("FlowsD", "txt"), true);
 
         for (Silo system : systems) {
             Utils.writeListToFile(
                     system.getTimes(),
-                    Utils.createFile("times_D_" + system.getHoleSize(), "txt"),
+                    Utils.createFile("timesD" + system.getHoleSize(), "txt"),
                     true
             );
         }

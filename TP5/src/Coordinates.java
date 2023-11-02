@@ -69,7 +69,7 @@ public class Coordinates {
         if (length != 0) {
             return new Coordinates(x / length, y / length);
         } else {
-            return new Coordinates(0.0, 0.0); // Returning a zero vector if the input vector is already a zero vector
+            return new Coordinates(0.0, 0.0);
         }
     }
 }

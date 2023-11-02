@@ -23,7 +23,7 @@ def getQs(path):
     return list(map(float, timesStr.split('\n')))
 
 Cs = [num / 100.0 for num in range(0, 200, 1)]
-Qs = getQs('../output/Flows_D1.txt')
+Qs = getQs('../output/FlowsD1.txt')
 
 beverlooError = [beverlooError(Qs, [ 3 , 4 , 5 , 6 ], c) for c
                 in Cs]
