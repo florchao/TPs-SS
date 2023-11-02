@@ -10,9 +10,7 @@ def getTimes(path):
     for line in timesStr:
         times.append(float(line))
 
-    data = np.array(times)
-
-    return data
+    return np.array(times)
 
 
 x1 = getTimes('../output/times_F1.txt')

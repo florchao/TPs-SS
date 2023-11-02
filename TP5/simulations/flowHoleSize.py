@@ -1,26 +1,19 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def get_times(path):
+def getTimes(path):
     with open(path) as file:
-        tiempos_str = file.read()
+        timesStr = file.read()
 
-    tiempos = list(map(float, tiempos_str.split('\n')))
+    times = list(map(float, timesStr.split('\n')))
 
-    return np.array(tiempos)
-
-def get_Qs(path):
-    with open(path) as file:
-        tiempos_str = file.read()
-
-    Qs = list(map(float, tiempos_str.split('\n')))
-    return Qs
+    return np.array(times)
 
 
-x1 = get_times('../output/times_D1.txt')
-x2 = get_times('../output/times_D2.txt')
-x3 = get_times('../output/times_D3.txt')
-x4 = get_times('../output/times_D4.txt')
+x1 = getTimes('../output/times_D1.txt')
+x2 = getTimes('../output/times_D2.txt')
+x3 = getTimes('../output/times_D3.txt')
+x4 = getTimes('../output/times_D4.txt')
 
 error_list = []
 

@@ -16,23 +16,21 @@ def beverlooError(Qs, Ds, c):
         result = result + (q - b) ** 2
     return result
 
-
 def getQs(path):
     with open(path) as file:
         timesStr = file.read()
 
     return list(map(float, timesStr.split('\n')))
 
-
 Cs = [num / 100.0 for num in range(0, 200, 1)]
 Qs = getQs('../output/Flows_D1.txt')
 
-beverloo_err = [beverlooError(Qs, [ 3 , 4 , 5 , 6 ], c) for c
+beverlooError = [beverlooError(Qs, [ 3 , 4 , 5 , 6 ], c) for c
                 in Cs]
-plt.plot(Cs, beverloo_err, color='magenta')
+plt.plot(Cs, beverlooError, color='magenta')
 
-c = Cs[np.argmin(beverloo_err)]
-plt.scatter(Cs[np.argmin(beverloo_err)], beverloo_err[np.argmin(beverloo_err)], color='purple')
+c = Cs[np.argmin(beverlooError)]
+plt.scatter(Cs[np.argmin(beverlooError)], beverlooError[np.argmin(beverloo)], color='purple')
 
 plt.xlabel('Parámetro libre c')
 plt.ylabel('Error')
